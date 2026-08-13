@@ -39,8 +39,9 @@ export async function onRequestGet(context) {
     }
   }
   let lastError = null;
+  const MAX_ATTEMPTS = 5; // aviationweather.gov is intermittently unreachable from Cloudflare's network (~30% observed failure rate) — retry harder than a normal proxy would need to.
 
-  for (let attempt = 0; attempt < 2; attempt++) {
+  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
     try {
       const res = await fetch(upstreamUrl, {
         headers: {
@@ -51,29 +52,31 @@ export async function onRequestGet(context) {
       });
       if (!res.ok) {
         lastError = `upstream HTTP ${res.status}`;
-        continue;
+      } else {
+        const text = await res.text();
+        if (!text.trim()) {
+          lastError = "empty response from upstream";
+        } else {
+          try {
+            JSON.parse(text);
+            return new Response(text, {
+              status: 200,
+              headers: {
+                "Content-Type": "application/json; charset=utf-8",
+                "Access-Control-Allow-Origin": "*",
+                "Cache-Control": "no-store",
+              },
+            });
+          } catch {
+            lastError = "invalid JSON from upstream";
+          }
+        }
       }
-      const text = await res.text();
-      if (!text.trim()) {
-        lastError = "empty response from upstream";
-        continue;
-      }
-      try {
-        JSON.parse(text);
-      } catch {
-        lastError = "invalid JSON from upstream";
-        continue;
-      }
-      return new Response(text, {
-        status: 200,
-        headers: {
-          "Content-Type": "application/json; charset=utf-8",
-          "Access-Control-Allow-Origin": "*",
-          "Cache-Control": "no-store",
-        },
-      });
     } catch (err) {
       lastError = String(err);
+    }
+    if (attempt < MAX_ATTEMPTS - 1) {
+      await new Promise((r) => setTimeout(r, 200 + attempt * 150));
     }
   }
 
