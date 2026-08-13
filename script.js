@@ -240,8 +240,8 @@ const STR = {
 
   heliTitle: { ar: "توقعات المروحيات والمنطقة المحلية", en: "Helicopter Ops & Local Area Forecast" },
   heliHint: {
-    ar: "نشرة رسمية من إدارة الأرصاد الجوية البحرينية — رياح وحرارة من السطح حتى FL390، مستوى التجمد، منسوب التروبوبوز، وتحذيرات التجمد لدائرة 50 كم حول مطار البحرين الدولي.",
-    en: "Official bulletin from Bahrain's Meteorological Directorate — winds and temperature from the surface to FL390, freezing level, tropopause, and icing warnings for a 50km radius around Bahrain International Airport.",
+    ar: "نشرة رسمية من إدارة الأرصاد الجوية البحرينية — رياح وحرارة من السطح حتى FL390، مستوى التجمد، منسوب التروبوبوز، وتحذيرات التجمد لدائرة 50 كم حول مطار البحرين الدولي. تُحدَّث كل 6 ساعات تقريباً.",
+    en: "Official bulletin from Bahrain's Meteorological Directorate — winds and temperature from the surface to FL390, freezing level, tropopause, and icing warnings for a 50km radius around Bahrain International Airport. Updated roughly every 6 hours.",
   },
   heliBtn: { ar: "افتح نشرة توقعات المروحيات والمنطقة المحلية (PDF)", en: "Open Helicopter Ops / Local Area Forecast (PDF)" },
   heliportsTitle: { ar: "أقرب مهابط الهليكوبتر", en: "Nearby Heliports" },
