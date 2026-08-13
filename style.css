@@ -306,6 +306,23 @@ a { color: var(--azure); }
 .card h2.mt { margin-top: 22px; }
 .hint { color: var(--text-dim); font-size: 0.8rem; margin: -8px 0 14px; }
 
+.notam-card { border-color: rgba(242, 193, 78, 0.35); }
+.notam-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 20px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-2));
+  color: #1a1200;
+  font-weight: 800;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: filter 0.15s, transform 0.1s;
+}
+.notam-btn:hover { filter: brightness(1.08); }
+.notam-btn:active { transform: translateY(1px); }
+
 /* Compass */
 .compass-wrap { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; justify-content: center; }
 .compass-svg { width: 240px; height: 240px; filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.4)); }

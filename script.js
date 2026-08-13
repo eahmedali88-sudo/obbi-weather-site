@@ -156,6 +156,13 @@ const STR = {
   navaidColBearing: { ar: "الاتجاه (°T)", en: "Bearing (°T)" },
   navaidColRange: { ar: "المدى (nm)", en: "Range (nm)" },
 
+  notamTitle: { ar: "إشعارات الطيارين (NOTAM)", en: "Notices to Airmen (NOTAM)" },
+  notamHint: {
+    ar: "لا يمكن عرض النوتامات تلقائياً هنا لأنها بيانات رسمية مقيدة ولا تتوفر عبر واجهة برمجية مفتوحة وموثوقة. اضغط الزر أدناه للوصول مباشرة إلى مصدر الطيران الرسمي لمملكة البحرين (النشرة اليومية PIB والنوتامات).",
+    en: "NOTAMs can't be shown automatically here — they're official restricted data with no reliable open API. Use the button below to go straight to Bahrain's official aeronautical information source (Daily PIB and NOTAMs).",
+  },
+  notamBtn: { ar: "افتح بوابة معلومات الطيران الرسمية للبحرين (AIS)", en: "Open Bahrain's Official AIS Portal" },
+
   commsTitle: { ar: "اتصالات مطار البحرين الدولي", en: "Bahrain International Airport Communications" },
   commsHint: {
     ar: "ترددات مرجعية — تحقق دائماً من آخر إصدار لمنشور معلومات الطيران (AIP) والنوتام قبل الاستخدام الفعلي.",
