@@ -33,6 +33,14 @@ function haversineNM(lat1, lon1, lat2, lon2) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+function haversineKm(lat1, lon1, lat2, lon2) {
+  const R = 6371.0088;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
 function initialBearing(lat1, lon1, lat2, lon2) {
   const y = Math.sin(toRad(lon2 - lon1)) * Math.cos(toRad(lat2));
   const x =
@@ -89,4 +97,43 @@ async function loadNavaids() {
   }
 }
 
+/* Nearby heliports — Bahrain International Airport (OBBI). Data: OurAirports
+   open dataset (public domain), all 18 active Bahrain heliport entries.
+   Distance/bearing computed here and cross-checked against a user-provided
+   reference (matched within rounding on every sampled entry). */
+const HELIPORT_LIMIT = 10;
+
+function renderHeliportsTable(heliports) {
+  const body = document.querySelector("#heliport-table tbody");
+  if (!body) return;
+  body.innerHTML = heliports
+    .slice(0, HELIPORT_LIMIT)
+    .map(
+      (h) =>
+        `<tr><td>${h.name}</td><td>${h.ident}</td><td>${h.distKm.toFixed(1)} km</td><td>${h.brg.toFixed(0)}°</td></tr>`
+    )
+    .join("");
+}
+
+async function loadHeliports() {
+  try {
+    const res = await fetch("data/heliports_bahrain.json?v=1", { cache: "no-store" });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const all = await res.json();
+
+    const nearby = all
+      .map((h) => ({
+        ...h,
+        distKm: haversineKm(OBBI_LAT, OBBI_LON, h.lat, h.lon),
+        brg: initialBearing(OBBI_LAT, OBBI_LON, h.lat, h.lon),
+      }))
+      .sort((a, b) => a.distKm - b.distKm);
+
+    renderHeliportsTable(nearby);
+  } catch (err) {
+    console.error("Failed to load heliports", err);
+  }
+}
+
 loadNavaids();
+loadHeliports();

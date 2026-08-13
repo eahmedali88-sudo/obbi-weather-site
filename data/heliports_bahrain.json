@@ -1,0 +1,110 @@
+[
+ {
+  "ident": "BH-0001",
+  "name": "Bahrain International Circuit Heliport",
+  "lat": 26.029738,
+  "lon": 50.511709
+ },
+ {
+  "ident": "BH-0002",
+  "name": "Riffa Air Base",
+  "lat": 26.107242,
+  "lon": 50.578968
+ },
+ {
+  "ident": "BH-0003",
+  "name": "Jidda Island West Heliport",
+  "lat": 26.19554,
+  "lon": 50.39748
+ },
+ {
+  "ident": "BH-0004",
+  "name": "Jidda Island South Heliport",
+  "lat": 26.190016,
+  "lon": 50.406708
+ },
+ {
+  "ident": "BH-0005",
+  "name": "King Hamad University Hospital Helipad",
+  "lat": 26.263023,
+  "lon": 50.602448
+ },
+ {
+  "ident": "BH-0006",
+  "name": "Bahrain Defense Force Heliport",
+  "lat": 26.18973,
+  "lon": 50.586
+ },
+ {
+  "ident": "BH-0007",
+  "name": "Block 997 Heliport",
+  "lat": 25.865112,
+  "lon": 50.553293
+ },
+ {
+  "ident": "BH-0008",
+  "name": "Block 998 Heliport",
+  "lat": 25.861811,
+  "lon": 50.551195
+ },
+ {
+  "ident": "BH-0010",
+  "name": "Um al Nasaan Helipad",
+  "lat": 26.164161,
+  "lon": 50.412375
+ },
+ {
+  "ident": "BH-0011",
+  "name": "Ritz-Carlton Helipad",
+  "lat": 26.248424,
+  "lon": 50.535839
+ },
+ {
+  "ident": "BH-0012",
+  "name": "Bahrain Customs HQ Helipad",
+  "lat": 26.224268,
+  "lon": 50.675384
+ },
+ {
+  "ident": "BH-0013",
+  "name": "Alghurayfah Navy Base Helipad",
+  "lat": 26.200727,
+  "lon": 50.611342
+ },
+ {
+  "ident": "BH-0014",
+  "name": "Amwaj Heliport",
+  "lat": 26.278596,
+  "lon": 50.666969
+ },
+ {
+  "ident": "BH-0015",
+  "name": "Hawar Island Heliport",
+  "lat": 25.72041,
+  "lon": 50.795782
+ },
+ {
+  "ident": "BH-0016",
+  "name": "Hawar Island Police Helipad",
+  "lat": 25.721636,
+  "lon": 50.790086
+ },
+ {
+  "ident": "BH-0017",
+  "name": "Bahrain International Karting Circuit Helipad",
+  "lat": 26.025253,
+  "lon": 50.505481
+ },
+ {
+  "ident": "BH-0020",
+  "name": "Bahrain International Circuit South Helipad",
+  "lat": 26.027139,
+  "lon": 50.511331
+ },
+ {
+  "ident": "BH-0023",
+  "name": "Sheik Isa Air Base Helipad",
+  "lat": 25.946174,
+  "lon": 50.608078
+ }
+]

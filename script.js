@@ -244,6 +244,11 @@ const STR = {
     en: "Official bulletin from Bahrain's Meteorological Directorate — winds and temperature from the surface to FL390, freezing level, tropopause, and icing warnings for a 50km radius around Bahrain International Airport.",
   },
   heliBtn: { ar: "افتح نشرة توقعات المروحيات والمنطقة المحلية (PDF)", en: "Open Helicopter Ops / Local Area Forecast (PDF)" },
+  heliportsTitle: { ar: "أقرب مهابط الهليكوبتر", en: "Nearby Heliports" },
+  heliportColName: { ar: "المهبط", en: "Heliport" },
+  heliportColId: { ar: "المعرف", en: "ID" },
+  heliportColDist: { ar: "المسافة", en: "Distance" },
+  heliportColDir: { ar: "الاتجاه", en: "Direction" },
 
   commsTitle: { ar: "اتصالات مطار البحرين الدولي", en: "Bahrain International Airport Communications" },
   commsHint: {

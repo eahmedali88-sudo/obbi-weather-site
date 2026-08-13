@@ -529,6 +529,16 @@ td.val { direction: ltr; font-weight: 700; }
   margin: 0 0 8px;
   letter-spacing: 0.4px;
 }
+
+.heli-subheading {
+  font-size: 0.85rem;
+  color: var(--gold);
+  margin: 20px 0 10px;
+  letter-spacing: 0.4px;
+}
+#heliport-table { min-width: 560px; }
+#heliport-table td:first-child { text-align: start; }
+#heliport-table td:nth-child(2) { text-align: center; }
 .navaid-data-table { min-width: 360px; }
 .navaid-data-table td, .navaid-data-table th { text-align: center; }
 .navaid-data-table td:nth-child(2) { text-align: start; }

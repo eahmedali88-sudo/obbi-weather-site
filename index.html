@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>طقس الطيران | مطار البحرين الدولي OBBI</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✈️</text></svg>">
-<link rel="stylesheet" href="style.css?v=14">
+<link rel="stylesheet" href="style.css?v=15">
 </head>
 <body>
 
@@ -246,6 +246,21 @@
     <a class="notam-btn" href="https://www.bahrainweather.gov.bh/files/forecasts/BMD_ForecastWeatherForLocalArea.pdf" target="_blank" rel="noopener">
       <span data-i18n="heliBtn">افتح نشرة توقعات المروحيات والمنطقة المحلية (PDF)</span> ↗
     </a>
+
+    <h3 class="heli-subheading" data-i18n="heliportsTitle">أقرب مهابط الهليكوبتر</h3>
+    <div class="taf-scroll">
+      <table class="navaid-data-table" id="heliport-table">
+        <thead>
+          <tr>
+            <th data-i18n="heliportColName">المهبط</th>
+            <th data-i18n="heliportColId">المعرف</th>
+            <th data-i18n="heliportColDist">المسافة</th>
+            <th data-i18n="heliportColDir">الاتجاه</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
   </section>
 
   <section class="card" id="comms-card">
@@ -301,7 +316,7 @@
   <p class="site-credit">Done by: E. Ahmed Ali Mansoor</p>
 </footer>
 
-<script src="script.js?v=14"></script>
-<script src="navaids.js?v=14"></script>
+<script src="script.js?v=15"></script>
+<script src="navaids.js?v=15"></script>
 </body>
 </html>
