@@ -161,6 +161,7 @@ a { color: var(--azure); }
   backdrop-filter: blur(8px);
 }
 .status-banner.error { color: #fca5a5; border-color: var(--ifr); }
+.status-banner.warn { color: #fbbf24; border-color: #f59e0b; background: rgba(245, 158, 11, 0.08); }
 .status-banner.ok { display: none; }
 
 /* Hero category banner */

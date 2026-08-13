@@ -39,6 +39,29 @@ const AIRPORTS = {
 const DEFAULT_ICAO = "OBBI";
 const REFRESH_MS = 5 * 60 * 1000;
 
+// Temporary manual backup, used ONLY when the live fetch fails on first load
+// (aviationweather.gov has been intermittently unreachable from Cloudflare's
+// network). Never overwrites already-loaded live data. Remove once resolved.
+const MANUAL_FALLBACK = {
+  OBBI: {
+    icaoId: "OBBI",
+    name: "Bahrain Intl, MU, BH",
+    rawOb: "METAR OBBI 131700Z 10007KT 8000 NSC 35/30 Q1000 NOSIG",
+    temp: 35,
+    dewp: 30,
+    wdir: 100,
+    wspd: 7,
+    visib: 4.97,
+    altim: 1000,
+    clouds: [],
+    wxString: null,
+    elev: 6,
+    fltCat: "MVFR",
+    obsTime: null,
+    reportTime: null,
+  },
+};
+
 /* ---------- i18n ---------- */
 const STR = {
   brandTitle: { ar: "مساعد الطيارين للطقس الجوي", en: "Pilot Weather Briefing Assistant" },
@@ -167,6 +190,11 @@ const STR = {
   checkIcao: { ar: "تحقق من صحة رمز ICAO.", en: "Please check the ICAO code." },
   fetchError: { ar: "تعذّر جلب بيانات الطقس", en: "Failed to fetch weather data" },
   checkConn: { ar: "تحقق من اتصال الإنترنت وحاول مرة أخرى.", en: "Check your internet connection and try again." },
+  fallbackNotice: {
+    ar: "تعذّر الوصول لمصدر البيانات الحية حالياً — المعروض أدناه تقرير METAR احتياطي أُدخل يدوياً (غير حي) مؤقتاً ريثما يتم حل مشكلة الاتصال.",
+    en: "Live data source is temporarily unreachable — showing a manually entered backup METAR below (not real-time) while we resolve a connectivity issue.",
+  },
+  sigmetFetchFailed: { ar: "تعذّر جلب بيانات SIGMET حالياً.", en: "Unable to fetch SIGMET data right now." },
   noSunData: { ar: "غير محدد", en: "Not applicable" },
 
   rwyInUse: { ar: "المدرج المستخدم", en: "Runway in Use" },
@@ -710,7 +738,13 @@ function renderSigmets(airport, sigmets) {
     return;
   }
 
-  const relevant = Array.isArray(sigmets) ? sigmets.filter((s) => s.firId === airport.fir) : [];
+  if (!Array.isArray(sigmets)) {
+    card.className = "card";
+    body.innerHTML = `<p class="hint" style="margin:0">${t("sigmetFetchFailed")}</p>`;
+    return;
+  }
+
+  const relevant = sigmets.filter((s) => s.firId === airport.fir);
 
   if (relevant.length === 0) {
     card.className = "card sigmet-clear";
@@ -978,8 +1012,16 @@ async function loadWeather(icaoRaw) {
     document.getElementById("last-updated").textContent =
       `${t("lastUpdated")} ` + pad2(now.getUTCHours()) + ":" + pad2(now.getUTCMinutes()) + " UTC";
   } catch (err) {
-    banner.className = "status-banner error";
-    banner.textContent = `❌ ${t("fetchError")} (${err.message}). ${t("checkConn")}`;
+    if (!state && MANUAL_FALLBACK[icao]) {
+      const metar = MANUAL_FALLBACK[icao];
+      state = { icao, airport, metar, taf: null, rainProb: null, metarHistory: [metar], sigmets: null, activeRunway: 0 };
+      renderAll();
+      banner.className = "status-banner warn";
+      banner.textContent = `⚠️ ${t("fallbackNotice")}`;
+    } else {
+      banner.className = "status-banner error";
+      banner.textContent = `❌ ${t("fetchError")} (${err.message}). ${t("checkConn")}`;
+    }
     console.error(err);
   }
 }
