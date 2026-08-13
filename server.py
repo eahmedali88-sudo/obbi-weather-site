@@ -28,7 +28,7 @@ class Handler(SimpleHTTPRequestHandler):
     def do_GET(self):
         parsed = urlparse(self.path)
 
-        if parsed.path in ("/proxy/metar", "/proxy/taf"):
+        if parsed.path in ("/proxy/metar", "/proxy/taf", "/proxy/isigmet"):
             self.handle_proxy(parsed)
             return
 
@@ -41,24 +41,28 @@ class Handler(SimpleHTTPRequestHandler):
         super().end_headers()
 
     def handle_proxy(self, parsed):
-        kind = "metar" if parsed.path == "/proxy/metar" else "taf"
+        kind = parsed.path.rsplit("/", 1)[-1]  # metar | taf | isigmet
         qs = parse_qs(parsed.query)
-        ids = (qs.get("ids") or [""])[0].strip().upper()
 
-        if not ICAO_RE.match(ids):
-            self.send_json_error(400, "invalid ids parameter")
-            return
+        if kind == "isigmet":
+            # Worldwide SIGMET feed, not scoped by ICAO — filtered client-side by FIR.
+            url = f"{UPSTREAM}/isigmet?format=json"
+        else:
+            ids = (qs.get("ids") or [""])[0].strip().upper()
+            if not ICAO_RE.match(ids):
+                self.send_json_error(400, "invalid ids parameter")
+                return
 
-        url = f"{UPSTREAM}/{kind}?ids={ids}&format=json"
+            url = f"{UPSTREAM}/{kind}?ids={ids}&format=json"
 
-        if kind == "metar":
-            hours_raw = (qs.get("hours") or [""])[0]
-            if hours_raw:
-                try:
-                    hours = max(1, min(72, int(hours_raw)))
-                    url += f"&hours={hours}"
-                except ValueError:
-                    pass
+            if kind == "metar":
+                hours_raw = (qs.get("hours") or [""])[0]
+                if hours_raw:
+                    try:
+                        hours = max(1, min(72, int(hours_raw)))
+                        url += f"&hours={hours}"
+                    except ValueError:
+                        pass
         last_error = None
         for attempt in range(2):  # one retry on transient empty/invalid upstream response
             try:

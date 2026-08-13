@@ -8,6 +8,7 @@ const AIRPORTS = {
     city: "Muharraq, Bahrain",
     cityAr: "المحرق، البحرين",
     lat: 26.2708, lon: 50.6336, tzOffset: 3,
+    fir: "OBBB",
     runways: [
       { id: "12L/30R", hdgs: [119, 299], lengthM: 3955, widthM: 60 },
       { id: "12R/30L", hdgs: [119, 299], lengthM: 2530, widthM: 45 },
@@ -182,6 +183,29 @@ const STR = {
   commsDelivery: { ar: "تصريح المغادرة (Delivery)", en: "Clearance Delivery" },
   commsGround: { ar: "التحكم الأرضي (Ground)", en: "Ground" },
   commsTower: { ar: "البرج (Tower)", en: "Tower" },
+
+  sigmetTitle: { ar: "تحذيرات SIGMET — منطقة معلومات الطيران", en: "SIGMET — Flight Information Region" },
+  sigmetHint: {
+    ar: "تحذيرات جوية رسمية من مصدر NOAA — لا تُغني عن الإحاطة الرسمية قبل الرحلة.",
+    en: "Official aviation hazard advisories from NOAA — not a substitute for an official pre-flight briefing.",
+  },
+  sigmetNone: { ar: "لا توجد تحذيرات SIGMET نشطة حالياً لهذه المنطقة.", en: "No active SIGMETs currently for this region." },
+  sigmetUnavailable: { ar: "بيانات SIGMET غير مرتبطة بهذا المطار حالياً.", en: "SIGMET data isn't mapped to this airport yet." },
+  sigmetValid: { ar: "صالح", en: "Valid" },
+  sigmetAlt: { ar: "الارتفاع", en: "Altitude" },
+  sigmetSurface: { ar: "من السطح", en: "Surface" },
+  hazardTURB: { ar: "اضطراب (Turbulence)", en: "Turbulence" },
+  hazardICE: { ar: "تجمد (Icing)", en: "Icing" },
+  hazardMTW: { ar: "موجة جبلية (Mountain Wave)", en: "Mountain Wave" },
+  hazardTS: { ar: "عاصفة رعدية (Thunderstorm)", en: "Thunderstorm" },
+  hazardTSGR: { ar: "عاصفة رعدية مع برد", en: "Thunderstorm with Hail" },
+  hazardGR: { ar: "برد (Hail)", en: "Hail" },
+  hazardDS: { ar: "عاصفة ترابية (Dust Storm)", en: "Dust Storm" },
+  hazardSS: { ar: "عاصفة رملية (Sand Storm)", en: "Sand Storm" },
+  hazardVA: { ar: "رماد بركاني (Volcanic Ash)", en: "Volcanic Ash" },
+  hazardTC: { ar: "إعصار مداري (Tropical Cyclone)", en: "Tropical Cyclone" },
+  hazardIFR: { ar: "طيران آلي منخفض (IFR)", en: "IFR Conditions" },
+  hazardMTOBSC: { ar: "جبال محجوبة", en: "Mountains Obscured" },
 };
 
 let lang = localStorage.getItem("obbi_lang") || "ar";
@@ -600,6 +624,57 @@ function renderHeroRunway(metar, airport) {
   }
 }
 
+/* ---------- SIGMET ---------- */
+function hazardLabel(hazard) {
+  return t("hazard" + hazard) !== "hazard" + hazard ? t("hazard" + hazard) : hazard;
+}
+
+function renderSigmets(airport, sigmets) {
+  const card = document.getElementById("sigmet-card");
+  const body = document.getElementById("sigmet-body");
+
+  if (!airport.fir) {
+    card.className = "card";
+    body.innerHTML = `<p class="hint" style="margin:0">${t("sigmetUnavailable")}</p>`;
+    return;
+  }
+
+  const relevant = Array.isArray(sigmets) ? sigmets.filter((s) => s.firId === airport.fir) : [];
+
+  if (relevant.length === 0) {
+    card.className = "card sigmet-clear";
+    body.innerHTML = `<p class="hint" style="margin:0">✅ ${t("sigmetNone")}</p>`;
+    return;
+  }
+
+  card.className = "card sigmet-active";
+  const tz = airport.tzOffset ?? 0;
+  const fmtT = (unixSec) => {
+    if (!unixSec) return "--";
+    const l = new Date(unixSec * 1000 + tz * 3600000);
+    return `${pad2(l.getUTCDate())}/${pad2(l.getUTCMonth() + 1)} ${pad2(l.getUTCHours())}:${pad2(l.getUTCMinutes())}`;
+  };
+
+  body.innerHTML = relevant
+    .map((s) => {
+      const altTxt =
+        s.top != null
+          ? `${s.base != null ? s.base + " ft" : t("sigmetSurface")} – ${s.top} ft`
+          : s.base != null
+          ? `${s.base}+ ft`
+          : "--";
+      return `<div class="sigmet-item">
+        <div class="sigmet-item-head">
+          <span class="sigmet-hazard">${hazardLabel(s.hazard)}${s.qualifier ? " (" + s.qualifier + ")" : ""}</span>
+          <span class="sigmet-time">${t("sigmetValid")}: ${fmtT(s.validTimeFrom)} → ${fmtT(s.validTimeTo)}</span>
+        </div>
+        <div class="hint" style="margin:4px 0">${t("sigmetAlt")}: ${altTxt}</div>
+        <pre class="raw-box" style="margin:0">${s.rawSigmet || "--"}</pre>
+      </div>`;
+    })
+    .join("");
+}
+
 /* ---------- Quick stats ---------- */
 function renderQuickStats(metar) {
   const cat = metar.fltCat || computeFlightCategory(parseVisib(metar.visib), parseCeilingFt(metar.clouds));
@@ -747,6 +822,7 @@ function renderAll() {
   renderHero(metar, airport);
   renderHeroRunway(metar, airport);
   renderQuickStats(metar);
+  renderSigmets(airport, state.sigmets);
   renderCompass(metar.wdir ?? null, metar.wspd ?? null, metar.wgst ?? null);
   renderRunwaySelector(airport);
   renderRunwayMark(airport, state.activeRunway, metar.wdir ?? null);
@@ -805,11 +881,12 @@ async function loadWeather(icaoRaw) {
   banner.textContent = `${t("fetching")} ${icao}...`;
 
   try {
-    const [metarArr, tafArr, rainProb, metarHistory] = await Promise.all([
+    const [metarArr, tafArr, rainProb, metarHistory, sigmets] = await Promise.all([
       fetchJson(`/proxy/metar?ids=${icao}`),
       fetchJson(`/proxy/taf?ids=${icao}`),
       airport.lat !== null ? fetchRainProbability(airport.lat, airport.lon) : Promise.resolve(null),
       fetchJson(`/proxy/metar?ids=${icao}&hours=24`).catch(() => null),
+      airport.fir ? fetchJson(`/proxy/isigmet`).catch(() => null) : Promise.resolve(null),
     ]);
 
     if (!metarArr || metarArr.length === 0) {
@@ -821,7 +898,7 @@ async function loadWeather(icaoRaw) {
     const metar = metarArr[0];
     const taf = tafArr && tafArr.length ? tafArr[0] : null;
 
-    state = { icao, airport, metar, taf, rainProb, metarHistory: metarHistory || [metar], activeRunway: 0 };
+    state = { icao, airport, metar, taf, rainProb, metarHistory: metarHistory || [metar], sigmets, activeRunway: 0 };
     renderAll();
 
     banner.className = "status-banner ok";

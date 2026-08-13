@@ -14,22 +14,28 @@ export async function onRequestGet(context) {
   const { params, request } = context;
   const kind = params.kind;
 
-  if (kind !== "metar" && kind !== "taf") {
+  if (kind !== "metar" && kind !== "taf" && kind !== "isigmet") {
     return jsonError(404, "not found");
   }
 
   const url = new URL(request.url);
-  const ids = (url.searchParams.get("ids") || "").trim().toUpperCase();
-  if (!ICAO_RE.test(ids)) {
-    return jsonError(400, "invalid ids parameter");
-  }
+  let upstreamUrl;
 
-  let upstreamUrl = `${UPSTREAM}/${kind}?ids=${ids}&format=json`;
-  if (kind === "metar") {
-    const hoursRaw = url.searchParams.get("hours");
-    if (hoursRaw) {
-      const hours = Math.max(1, Math.min(72, parseInt(hoursRaw, 10) || 0));
-      if (hours) upstreamUrl += `&hours=${hours}`;
+  if (kind === "isigmet") {
+    // Worldwide SIGMET feed, not scoped by ICAO — filtered client-side by FIR.
+    upstreamUrl = `${UPSTREAM}/isigmet?format=json`;
+  } else {
+    const ids = (url.searchParams.get("ids") || "").trim().toUpperCase();
+    if (!ICAO_RE.test(ids)) {
+      return jsonError(400, "invalid ids parameter");
+    }
+    upstreamUrl = `${UPSTREAM}/${kind}?ids=${ids}&format=json`;
+    if (kind === "metar") {
+      const hoursRaw = url.searchParams.get("hours");
+      if (hoursRaw) {
+        const hours = Math.max(1, Math.min(72, parseInt(hoursRaw, 10) || 0));
+        if (hours) upstreamUrl += `&hours=${hours}`;
+      }
     }
   }
   let lastError = null;

@@ -308,6 +308,20 @@ a { color: var(--azure); }
 .hint { color: var(--text-dim); font-size: 0.8rem; margin: -8px 0 14px; }
 
 .notam-card { border-color: rgba(242, 193, 78, 0.35); }
+
+.sigmet-clear { border-color: rgba(34, 197, 94, 0.35); }
+.sigmet-active { border-color: rgba(239, 68, 68, 0.5); }
+.sigmet-item {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+}
+.sigmet-item:last-child { margin-bottom: 0; }
+.sigmet-item-head { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+.sigmet-hazard { font-weight: 800; color: #f87171; }
+.sigmet-time { font-size: 0.8rem; color: var(--text-dim); direction: ltr; }
 .notam-btn {
   display: inline-flex;
   align-items: center;
