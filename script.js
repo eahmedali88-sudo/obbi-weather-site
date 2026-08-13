@@ -1187,38 +1187,25 @@ document.getElementById("lang-toggle").addEventListener("click", () => {
   setLang(lang === "ar" ? "en" : "ar");
 });
 
-/* ---------- Unit toggle buttons ---------- */
-function updateUnitButtons() {
-  document.getElementById("temp-unit-toggle").textContent = tempUnit === "C" ? "°F" : "°C";
-  document.getElementById("vis-unit-toggle").textContent = visUnit === "SM" ? "km" : "SM";
-}
-
+/* ---------- Unit toggles (in-card only — Dew Point/Temperature and Visibility squares) ---------- */
 function toggleTempUnit() {
   tempUnit = tempUnit === "C" ? "F" : "C";
   localStorage.setItem("obbi_temp_unit", tempUnit);
-  updateUnitButtons();
   if (state) renderAll();
 }
 
 function toggleVisUnit() {
   visUnit = visUnit === "SM" ? "KM" : "SM";
   localStorage.setItem("obbi_vis_unit", visUnit);
-  updateUnitButtons();
   if (state) renderAll();
 }
 
-document.getElementById("temp-unit-toggle").addEventListener("click", toggleTempUnit);
-document.getElementById("vis-unit-toggle").addEventListener("click", toggleVisUnit);
-
-// Same toggles, accessible directly on the relevant quickstat cards too.
 document.getElementById("quickstats").addEventListener("click", (e) => {
   const btn = e.target.closest(".stat-unit-btn");
   if (!btn) return;
   if (btn.dataset.unitKey === "temp") toggleTempUnit();
   else if (btn.dataset.unitKey === "vis") toggleVisUnit();
 });
-
-updateUnitButtons();
 
 /* ---------- Crosswind limit input ---------- */
 const xwindInput = document.getElementById("xwind-limit-input");
