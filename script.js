@@ -117,6 +117,7 @@ const STR = {
   statWind: { ar: "الرياح", en: "Wind" },
   statVisibility: { ar: "الرؤية", en: "Visibility" },
   statRain: { ar: "فرصة هطول الأمطار", en: "Chance of Rain" },
+  switchUnit: { ar: "اضغط لتغيير الوحدة", en: "Tap to switch unit" },
   statQnh: { ar: "الضغط QNH", en: "QNH" },
   statAge: { ar: "عمر البيانات", en: "Data Age" },
   minutesAgo: { ar: "دقيقة", en: "min" },
@@ -148,6 +149,21 @@ const STR = {
   colRunway: { ar: "المدرج", en: "Runway" },
   colHeadTail: { ar: "المكوّن الأمامي/الخلفي", en: "Head / Tailwind" },
   colCross: { ar: "المكوّن الجانبي", en: "Crosswind" },
+
+  rsTitle: { ar: "المدرجات", en: "Runways" },
+  rsHint: {
+    ar: "البيانات الفيزيائية مرجعية — الاتجاه المغناطيسي والطول والعرض من مصادرنا المتحقق منها؛ الاتجاه الحقيقي وإحداثيات العتبة تقديرية محسوبة، وليست من منشور AIP رسمي.",
+    en: "Physical data for reference — magnetic heading, length, and width are from our verified sources; true heading and threshold coordinates are computed estimates, not from an official AIP.",
+  },
+  rsId: { ar: "المعرف", en: "ID" },
+  rsTrueHdg: { ar: "الاتجاه الحقيقي", en: "True Heading" },
+  rsMagHdg: { ar: "الاتجاه المغناطيسي", en: "Magnetic Heading" },
+  rsLength: { ar: "الطول", en: "Length" },
+  rsWidth: { ar: "العرض", en: "Width" },
+  rsSurface: { ar: "السطح", en: "Surface" },
+  rsLat: { ar: "خط العرض", en: "Latitude" },
+  rsLon: { ar: "خط الطول", en: "Longitude" },
+  surfaceAsphalt: { ar: "إسفلت", en: "Asphalt" },
   activeRunway: { ar: "مدرج بالخدمة", en: "Runway in use" },
   headwind: { ar: "رياح أمامية", en: "Headwind" },
   tailwind: { ar: "رياح خلفية", en: "Tailwind" },
@@ -350,6 +366,26 @@ function windComponents(windDir, windSpd, runwayHdg) {
   const headwind = windSpd * Math.cos(diff);
   const crosswind = windSpd * Math.sin(diff);
   return { headwind, crosswind };
+}
+
+// Approximate magnetic variation for the Bahrain region (°E). Used only to
+// derive an indicative true heading from the magnetic heading we actually
+// use for wind calculations — not sourced from an official AIP.
+const BAHRAIN_MAG_VAR = 4;
+
+// Geodesic destination point (Earth treated as a sphere) — used to derive
+// approximate runway threshold coordinates by projecting from the airport's
+// known reference point along the runway bearing, rather than trusting any
+// unverified lat/lon figures for individual thresholds.
+function destinationPoint(lat, lon, bearingDeg, distanceM) {
+  const R = 6371000;
+  const delta = distanceM / R;
+  const theta = (bearingDeg * Math.PI) / 180;
+  const phi1 = (lat * Math.PI) / 180;
+  const lambda1 = (lon * Math.PI) / 180;
+  const phi2 = Math.asin(Math.sin(phi1) * Math.cos(delta) + Math.cos(phi1) * Math.sin(delta) * Math.cos(theta));
+  const lambda2 = lambda1 + Math.atan2(Math.sin(theta) * Math.sin(delta) * Math.cos(phi1), Math.cos(delta) - Math.sin(phi1) * Math.sin(phi2));
+  return { lat: (phi2 * 180) / Math.PI, lon: (((lambda2 * 180) / Math.PI + 540) % 360) - 180 };
 }
 
 function fmtNum(n, digits = 0) {
@@ -671,6 +707,51 @@ function renderRunwayTable(airport, wdir, wspd) {
   </table>`;
 }
 
+/* ---------- Runway specs table (physical reference data) ---------- */
+function renderRunwaySpecs(airport) {
+  const card = document.getElementById("runway-specs-card");
+  const wrap = document.getElementById("runway-specs-wrap");
+  if (!airport.runways || airport.runways.length === 0 || airport.lat === null) {
+    card.style.display = "none";
+    return;
+  }
+  card.style.display = "";
+
+  const rows = [];
+  for (const rw of airport.runways) {
+    const parts = rw.id.split("/");
+    for (let i = 0; i < 2; i++) {
+      const magHdg = rw.hdgs[i];
+      const trueHdg = Math.round((magHdg + BAHRAIN_MAG_VAR + 360) % 360);
+      const pt = destinationPoint(airport.lat, airport.lon, magHdg, rw.lengthM / 2);
+      rows.push(`<tr>
+        <td><strong>${parts[i]}</strong></td>
+        <td>${trueHdg}°</td>
+        <td>${padDir(magHdg)}°</td>
+        <td>${rw.lengthM.toLocaleString()} m</td>
+        <td>${rw.widthM} m</td>
+        <td>${t("surfaceAsphalt")}</td>
+        <td>${pt.lat.toFixed(4)}</td>
+        <td>${pt.lon.toFixed(4)}</td>
+      </tr>`);
+    }
+  }
+
+  wrap.innerHTML = `<table>
+    <thead><tr>
+      <th>${t("rsId")}</th>
+      <th>${t("rsTrueHdg")}</th>
+      <th>${t("rsMagHdg")}</th>
+      <th>${t("rsLength")}</th>
+      <th>${t("rsWidth")}</th>
+      <th>${t("rsSurface")}</th>
+      <th>${t("rsLat")}</th>
+      <th>${t("rsLon")}</th>
+    </tr></thead>
+    <tbody>${rows.join("")}</tbody>
+  </table>`;
+}
+
 /* ---------- Density altitude ---------- */
 function computeDensityAltitude(tempC, altimHpa, elevFt) {
   if (tempC === undefined || tempC === null || altimHpa === undefined || altimHpa === null || elevFt === undefined || elevFt === null) {
@@ -816,11 +897,11 @@ function renderQuickStats(metar) {
 
   const stats = [
     { icon: "🚦", label: t("statCategory"), value: cat, cls: `cat-${cat}`, badge: true },
-    { icon: "🌡️", label: t("statTemp"), value: fmtTemp(metar.temp) },
-    { icon: "💧", label: t("statDew"), value: fmtTemp(metar.dewp) },
+    { icon: "🌡️", label: t("statTemp"), value: fmtTemp(metar.temp), unitKey: "temp", unitLabel: tempUnit === "C" ? "°F" : "°C" },
+    { icon: "💧", label: t("statDew"), value: fmtTemp(metar.dewp), unitKey: "temp", unitLabel: tempUnit === "C" ? "°F" : "°C" },
     { icon: "💦", label: t("statHumidity"), value: rh !== null ? `${rh}%` : "--" },
     { icon: "🧭", label: t("statWind"), value: fmtWind(metar.wdir, metar.wspd, metar.wgst) },
-    { icon: "👁️", label: t("statVisibility"), value: fmtVis(metar.visib) },
+    { icon: "👁️", label: t("statVisibility"), value: fmtVis(metar.visib), unitKey: "vis", unitLabel: visUnit === "SM" ? "km" : "SM" },
     { icon: "🌧️", label: t("statRain"), value: state && state.rainProb !== null && state.rainProb !== undefined ? `${state.rainProb}%` : "--" },
     { icon: "📊", label: t("statQnh"), value: metar.altim !== undefined && metar.altim !== null ? `${fmtNum(metar.altim, 1)} hPa` : "--" },
     { icon: "🕐", label: t("statAge"), value: ageMin !== null ? `${ageMin} ${t("minutesAgo")}` : "--" },
@@ -830,6 +911,7 @@ function renderQuickStats(metar) {
   wrap.innerHTML = stats
     .map(
       (s) => `<div class="stat fade-in ${s.badge ? "badge " + s.cls : ""}">
+        ${s.unitKey ? `<button class="stat-unit-btn" data-unit-key="${s.unitKey}" title="${t("switchUnit")}">${s.unitLabel}</button>` : ""}
         <span class="stat-icon">${s.icon}</span>
         <span class="stat-value">${s.value}</span>
         <span class="stat-label">${s.label}</span>
@@ -961,6 +1043,7 @@ function renderAll() {
   renderRunwaySelector(airport);
   renderRunwayMark(airport, state.activeRunway, metar.wdir ?? null);
   renderRunwayTable(airport, metar.wdir ?? null, metar.wspd ?? null);
+  renderRunwaySpecs(airport);
   renderDecodedTable(metar);
   renderDaylight(airport);
 
@@ -1105,18 +1188,29 @@ function updateUnitButtons() {
   document.getElementById("vis-unit-toggle").textContent = visUnit === "SM" ? "km" : "SM";
 }
 
-document.getElementById("temp-unit-toggle").addEventListener("click", () => {
+function toggleTempUnit() {
   tempUnit = tempUnit === "C" ? "F" : "C";
   localStorage.setItem("obbi_temp_unit", tempUnit);
   updateUnitButtons();
   if (state) renderAll();
-});
+}
 
-document.getElementById("vis-unit-toggle").addEventListener("click", () => {
+function toggleVisUnit() {
   visUnit = visUnit === "SM" ? "KM" : "SM";
   localStorage.setItem("obbi_vis_unit", visUnit);
   updateUnitButtons();
   if (state) renderAll();
+}
+
+document.getElementById("temp-unit-toggle").addEventListener("click", toggleTempUnit);
+document.getElementById("vis-unit-toggle").addEventListener("click", toggleVisUnit);
+
+// Same toggles, accessible directly on the relevant quickstat cards too.
+document.getElementById("quickstats").addEventListener("click", (e) => {
+  const btn = e.target.closest(".stat-unit-btn");
+  if (!btn) return;
+  if (btn.dataset.unitKey === "temp") toggleTempUnit();
+  else if (btn.dataset.unitKey === "vis") toggleVisUnit();
 });
 
 updateUnitButtons();
