@@ -1,0 +1,88 @@
+"""
+خادم بسيط لموقع طقس الطيارين: يخدم الملفات الثابتة (HTML/CSS/JS)
+ويعمل كوسيط (proxy) لطلبات METAR/TAF من aviationweather.gov لتفادي
+قيود CORS في المتصفح. لا يحتاج مكتبات خارجية (Python stdlib فقط).
+
+تشغيل:
+    python server.py [PORT]
+"""
+
+import json
+import os
+import re
+import sys
+import urllib.error
+import urllib.request
+from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+from urllib.parse import urlparse, parse_qs
+
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
+UPSTREAM = "https://aviationweather.gov/api/data"
+ICAO_RE = re.compile(r"^[A-Za-z0-9,]{1,40}$")
+# Hosting platforms (Render, Railway, Fly, etc.) assign the port via $PORT.
+PORT = int(sys.argv[1]) if len(sys.argv) > 1 else int(os.environ.get("PORT", 8765))
+
+
+class Handler(SimpleHTTPRequestHandler):
+    def do_GET(self):
+        parsed = urlparse(self.path)
+
+        if parsed.path in ("/proxy/metar", "/proxy/taf"):
+            self.handle_proxy(parsed)
+            return
+
+        return super().do_GET()
+
+    def handle_proxy(self, parsed):
+        kind = "metar" if parsed.path == "/proxy/metar" else "taf"
+        qs = parse_qs(parsed.query)
+        ids = (qs.get("ids") or [""])[0].strip().upper()
+
+        if not ICAO_RE.match(ids):
+            self.send_json_error(400, "invalid ids parameter")
+            return
+
+        url = f"{UPSTREAM}/{kind}?ids={ids}&format=json"
+        last_error = None
+        for attempt in range(2):  # one retry on transient empty/invalid upstream response
+            try:
+                req = urllib.request.Request(url, headers={"Accept": "application/json"})
+                with urllib.request.urlopen(req, timeout=10) as resp:
+                    body = resp.read()
+                if not body or not body.strip():
+                    last_error = "empty response from upstream"
+                    continue
+                try:
+                    json.loads(body)
+                except ValueError:
+                    last_error = "invalid JSON from upstream"
+                    continue
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.send_header("Access-Control-Allow-Origin", "*")
+                self.send_header("Cache-Control", "no-store")
+                self.end_headers()
+                self.wfile.write(body)
+                return
+            except urllib.error.URLError as e:
+                last_error = f"upstream error: {e}"
+            except Exception as e:  # noqa: BLE001
+                last_error = str(e)
+        self.send_json_error(502, last_error or "unknown upstream failure")
+
+    def send_json_error(self, code, message):
+        self.send_response(code)
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.end_headers()
+        self.wfile.write(json.dumps({"error": message}).encode("utf-8"))
+
+    def log_message(self, format, *args):  # noqa: A002
+        sys.stderr.write("%s - %s\n" % (self.address_string(), format % args))
+
+
+if __name__ == "__main__":
+    server = ThreadingHTTPServer(("0.0.0.0", PORT), Handler)
+    print(f"OBBI weather site running on http://localhost:{PORT}")
+    server.serve_forever()

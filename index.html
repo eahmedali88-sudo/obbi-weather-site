@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>طقس الطيران | مطار البحرين الدولي OBBI</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✈️</text></svg>">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="flag-rail" aria-hidden="true"></div>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <span class="brand-badge">
+        <svg viewBox="0 0 48 48" class="brand-falcon" aria-hidden="true">
+          <circle cx="24" cy="24" r="23" class="badge-ring"/>
+          <path d="M24 10 L28 22 L40 24 L28 26 L24 38 L20 26 L8 24 L20 22 Z" class="badge-star"/>
+        </svg>
+      </span>
+      <div class="brand-text">
+        <h1 data-i18n="brandTitle">مساعد الطيارين للطقس الجوي</h1>
+        <p class="brand-sub" data-i18n="brandSub">إحاطة طقس جوية للطيارين — منطقة معلومات طيران البحرين</p>
+      </div>
+    </div>
+
+    <div class="topbar-controls">
+      <form id="icao-form" class="icao-form" autocomplete="off">
+        <label for="icao-input" class="sr-only" data-i18n="icaoLabel">رمز المطار ICAO</label>
+        <input id="icao-input" type="text" maxlength="4" placeholder="OBBI" value="OBBI" spellcheck="false">
+        <button type="submit" data-i18n="update">تحديث</button>
+      </form>
+      <button id="lang-toggle" class="lang-toggle" type="button" title="Switch language">EN</button>
+    </div>
+
+    <div class="clocks">
+      <div class="clock">
+        <span class="clock-label" data-i18n="localTime">التوقيت المحلي (البحرين)</span>
+        <span id="clock-local" class="clock-value">--:--:--</span>
+      </div>
+      <div class="clock">
+        <span class="clock-label" data-i18n="utcTime">التوقيت العالمي UTC</span>
+        <span id="clock-utc" class="clock-value">--:--:--</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="disclaimer">
+  <span class="disclaimer-icon">⚠️</span>
+  <span data-i18n="disclaimer">هذه الأداة لأغراض معلوماتية ومساعدة عامة فقط، ولا تُغني إطلاقاً عن مصادر الطقس والنوتام الرسمية (NOTAM) المعتمدة عند تخطيط الرحلات الفعلي. تحقق دائماً من الجهات الرسمية قبل الطيران.</span>
+</div>
+
+<main id="app">
+
+  <section id="status-banner" class="status-banner" data-i18n="loading">جاري جلب بيانات الطقس...</section>
+
+  <section class="hero-cat" id="hero-cat">
+    <div class="hero-cat-left">
+      <span class="live-dot" aria-hidden="true"></span>
+      <div>
+        <div class="hero-airport-name" id="hero-airport-name">Bahrain International Airport</div>
+        <div class="hero-airport-code" id="hero-airport-code">OBBI · Muharraq, Bahrain</div>
+      </div>
+    </div>
+    <div class="hero-rwy" id="hero-rwy">
+      <span class="hero-rwy-label" data-i18n="rwyInUse">المدرج المستخدم</span>
+      <span class="hero-rwy-value" id="hero-rwy-value">--</span>
+    </div>
+
+    <div class="hero-cat-badge" id="hero-cat-badge">
+      <span id="hero-cat-value">--</span>
+    </div>
+  </section>
+
+  <section class="quickstats" id="quickstats" aria-live="polite">
+    <!-- filled by JS -->
+  </section>
+
+  <section class="grid-2">
+    <div class="card compass-card">
+      <h2><span class="card-icon">🧭</span><span data-i18n="windTitle">اتجاه وسرعة الرياح</span></h2>
+      <div class="compass-wrap">
+        <svg id="compass" viewBox="0 0 300 300" class="compass-svg">
+          <defs>
+            <radialGradient id="compassBg" cx="50%" cy="42%" r="70%">
+              <stop offset="0%" stop-color="#173463"/>
+              <stop offset="100%" stop-color="#0b1f3f"/>
+            </radialGradient>
+            <linearGradient id="runwayFill" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#33383f"/>
+              <stop offset="50%" stop-color="#484f59"/>
+              <stop offset="100%" stop-color="#33383f"/>
+            </linearGradient>
+          </defs>
+          <circle cx="150" cy="150" r="140" class="compass-ring"/>
+          <circle cx="150" cy="150" r="140" class="compass-ring-outline"/>
+          <g id="compass-ticks"></g>
+          <g id="compass-labels" class="compass-dir-labels">
+            <text x="150" y="30" text-anchor="middle">N</text>
+            <text x="270" y="156" text-anchor="middle">E</text>
+            <text x="150" y="280" text-anchor="middle">S</text>
+            <text x="30" y="156" text-anchor="middle">W</text>
+          </g>
+          <g id="runway-mark"></g>
+          <g id="wind-needle">
+            <line x1="150" y1="20" x2="150" y2="280" class="needle-sightline"/>
+            <path d="M150,85 L131,121 L150,111 L169,121 Z" class="needle-chevron"/>
+          </g>
+        </svg>
+        <div class="compass-readout">
+          <div><span class="ro-label" data-i18n="windFrom">الاتجاه (من)</span><span id="wind-dir" class="ro-value">--°</span></div>
+          <div><span class="ro-label" data-i18n="windSpeed">السرعة</span><span id="wind-spd" class="ro-value">-- kt</span></div>
+          <div><span class="ro-label" data-i18n="windGust">الهبات (Gust)</span><span id="wind-gust" class="ro-value">--</span></div>
+        </div>
+      </div>
+      <div id="runway-selector" class="runway-selector"></div>
+    </div>
+
+    <div class="card">
+      <h2><span class="card-icon">🛬</span><span data-i18n="crosswindTitle">الرياح الجانبية والأمامية للمدرج</span></h2>
+      <p class="hint" data-i18n="crosswindHint">القيم تقديرية لأغراض المعلومات فقط — لا تُستخدم للتخطيط الفعلي.</p>
+      <div id="runway-table-wrap"></div>
+    </div>
+  </section>
+
+  <section class="grid-2">
+    <div class="card">
+      <h2><span class="card-icon">📄</span><span data-i18n="rawMetarTitle">تقرير METAR الخام</span></h2>
+      <pre id="raw-metar" class="raw-box">--</pre>
+      <h2 class="mt"><span class="card-icon">📑</span><span data-i18n="rawTafTitle">تقرير TAF الخام</span></h2>
+      <pre id="raw-taf" class="raw-box">--</pre>
+    </div>
+
+    <div class="card">
+      <h2><span class="card-icon">📋</span><span data-i18n="decodedTitle">تفاصيل الأرصاد</span></h2>
+      <table class="decoded-table" id="decoded-table">
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span class="card-icon">📈</span><span data-i18n="tafTimelineTitle">توقعات TAF</span></h2>
+    <div class="taf-scroll">
+      <table class="taf-table" id="taf-table">
+        <thead>
+          <tr>
+            <th data-i18n="thPeriod">الفترة الزمنية</th>
+            <th data-i18n="thCategory">الحالة</th>
+            <th data-i18n="thWind">الرياح</th>
+            <th data-i18n="thVisibility">الرؤية</th>
+            <th data-i18n="thCeiling">السقف</th>
+            <th data-i18n="thWeather">الطقس</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card" id="daylight-card">
+    <h2><span class="card-icon">☀️</span><span data-i18n="daylightTitle">فترة النهار</span></h2>
+    <div class="daylight-wrap">
+      <svg id="sun-arc" viewBox="0 0 400 150" class="sun-arc-svg">
+        <path d="M 20 130 Q 200 -20 380 130" class="arc-path"/>
+        <line x1="20" y1="130" x2="380" y2="130" class="horizon-line"/>
+        <circle id="sun-pos" cx="20" cy="130" r="10" class="sun-dot"/>
+      </svg>
+      <div class="daylight-readout">
+        <div><span class="ro-label" data-i18n="sunrise">الشروق</span><span id="sunrise" class="ro-value">--:--</span></div>
+        <div><span class="ro-label" data-i18n="solarNoon">الظهيرة</span><span id="noon" class="ro-value">--:--</span></div>
+        <div><span class="ro-label" data-i18n="sunset">الغروب</span><span id="sunset" class="ro-value">--:--</span></div>
+        <div><span class="ro-label" data-i18n="dayLength">طول النهار</span><span id="daylen" class="ro-value">--</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" id="comms-card">
+    <h2><span class="card-icon">📻</span><span data-i18n="commsTitle">اتصالات مطار البحرين الدولي</span></h2>
+    <p class="hint" data-i18n="commsHint">ترددات مرجعية — تحقق دائماً من آخر إصدار لمنشور معلومات الطيران (AIP) والنوتام قبل الاستخدام الفعلي.</p>
+    <table class="decoded-table" id="comms-table">
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <section class="card" id="navaids-card">
+    <h2><span class="card-icon">🛰️</span><span data-i18n="navaidsTitle">الوسائل الملاحية القريبة — مطار البحرين الدولي (OBBI)</span></h2>
+    <p class="hint" data-i18n="navaidsHint">مواقع وترددات حقيقية (بيانات مفتوحة من OurAirports)، مع المدى والاتجاه المحسوبين فلكياً من مركز مطار البحرين — لأغراض مرجعية فقط وليست مخططات ملاحة رسمية.</p>
+
+    <div class="navaid-tables">
+      <div>
+        <h3 data-i18n="navaidsVorGroup">VOR / VORTAC / TACAN</h3>
+        <table class="navaid-data-table" id="navaid-vor-table">
+          <thead>
+            <tr>
+              <th data-i18n="navaidColId">المعرف</th>
+              <th data-i18n="navaidColName">الاسم</th>
+              <th data-i18n="navaidColFreq">التردد</th>
+              <th data-i18n="navaidColRadial">الراديال°T</th>
+              <th data-i18n="navaidColRange">المدى (nm)</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div>
+        <h3 data-i18n="navaidsNdbGroup">NDB</h3>
+        <table class="navaid-data-table" id="navaid-ndb-table">
+          <thead>
+            <tr>
+              <th data-i18n="navaidColId">المعرف</th>
+              <th data-i18n="navaidColName">الاسم</th>
+              <th data-i18n="navaidColFreq">التردد</th>
+              <th data-i18n="navaidColBearing">الاتجاه°T</th>
+              <th data-i18n="navaidColRange">المدى (nm)</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <p id="last-updated" data-i18n="lastUpdatedNone">آخر تحديث: --</p>
+</footer>
+
+<script src="script.js"></script>
+<script src="navaids.js"></script>
+</body>
+</html>
