@@ -69,7 +69,7 @@ function renderNavaidTables(navaids) {
 
 async function loadNavaids() {
   try {
-    const res = await fetch("data/navaids_bahrain_fir.json");
+    const res = await fetch("data/navaids_bahrain_fir.json?v=2", { cache: "no-store" });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const all = await res.json();
 

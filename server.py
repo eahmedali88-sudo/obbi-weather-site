@@ -34,6 +34,12 @@ class Handler(SimpleHTTPRequestHandler):
 
         return super().do_GET()
 
+    def end_headers(self):
+        # Small personal site, dev server — always serve fresh content,
+        # never let an intermediary cache a stale page after an edit.
+        self.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
+        super().end_headers()
+
     def handle_proxy(self, parsed):
         kind = "metar" if parsed.path == "/proxy/metar" else "taf"
         qs = parse_qs(parsed.query)

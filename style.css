@@ -435,6 +435,7 @@ td.val { direction: ltr; font-weight: 700; }
   margin-top: 6px;
 }
 .site-footer a { color: var(--azure); }
+.site-credit { font-size: 0.7rem; color: var(--text-faint); margin-top: 4px; direction: ltr; }
 
 /* Fade-in on data render */
 .fade-in { animation: fadeIn 0.4s ease; }
