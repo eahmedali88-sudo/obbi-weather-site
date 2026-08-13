@@ -29,7 +29,22 @@ python server.py
 - `index.html` — الصفحة الرئيسية
 - `style.css` — التنسيق
 - `script.js` — منطق جلب البيانات، الحسابات، والعرض
-- `server.py` — خادم الملفات الثابتة + وسيط CORS لـ aviationweather.gov
+- `navaids.js` — جداول الوسائل الملاحية القريبة من OBBI
+- `server.py` — خادم محلي للتطوير (الملفات الثابتة + وسيط CORS)
+- `functions/proxy/[kind].js` — نفس الوسيط، كدالة Cloudflare Pages Function للنشر الفعلي
+
+## النشر على الإنترنت (Cloudflare Pages)
+
+الموقع جاهز للنشر مجاناً على Cloudflare Pages (بدون بطاقة ائتمان):
+
+1. ارفع المجلد إلى مستودع GitHub.
+2. من لوحة Cloudflare: **Workers & Pages → Create → Pages → Connect to Git**، واختر المستودع.
+3. إعدادات البناء: Framework preset = None، Build command = فارغ، Build output directory = `/`.
+4. بعد النشر ستحصل على رابط عام مثل `https://obbi-weather-site.pages.dev`.
+5. (اختياري) لإضافة نطاق مخصص: اشترِ نطاقاً من أي مسجّل ثم أضفه من إعدادات المشروع → Custom domains (مجاني الإضافة، تكلفة النطاق فقط).
+
+`server.py` يبقى مفيداً للتطوير والاختبار المحلي فقط؛ عند النشر على Cloudflare تُستخدم دالة
+`functions/proxy/[kind].js` تلقائياً بدلاً منه (نفس المنطق، بلغة JavaScript).
 
 ## ملاحظة مهمة
 
