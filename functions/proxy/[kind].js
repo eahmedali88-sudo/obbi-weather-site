@@ -42,7 +42,13 @@ export async function onRequestGet(context) {
 
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
-      const res = await fetch(upstreamUrl, { headers: { Accept: "application/json" } });
+      const res = await fetch(upstreamUrl, {
+        headers: {
+          Accept: "application/json",
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+          "Accept-Language": "en-US,en;q=0.9",
+        },
+      });
       if (!res.ok) {
         lastError = `upstream HTTP ${res.status}`;
         continue;
