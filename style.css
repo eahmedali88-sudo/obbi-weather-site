@@ -468,5 +468,6 @@ td.val { direction: ltr; font-weight: 700; }
 @media (max-width: 640px) {
   .hero-cat { flex-direction: column; align-items: stretch; text-align: center; }
   .hero-cat-left { justify-content: center; }
-  .clocks { display: none; }
+  .topbar-inner { justify-content: center; }
+  .clocks { gap: 14px; }
 }
