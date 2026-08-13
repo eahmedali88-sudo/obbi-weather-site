@@ -59,6 +59,15 @@ const STR = {
   crosswindHint: { ar: "القيم تقديرية لأغراض المعلومات فقط — لا تُستخدم للتخطيط الفعلي.", en: "Estimated values for information only — not for operational flight planning." },
   rawMetarTitle: { ar: "تقرير METAR الخام", en: "Raw METAR" },
   rawTafTitle: { ar: "تقرير TAF الخام", en: "Raw TAF" },
+  metarHistoryTitle: { ar: "سجل METAR", en: "METAR History" },
+  mhTime: { ar: "الوقت", en: "Time" },
+  mhCode: { ar: "الحالة", en: "Code" },
+  mhWeather: { ar: "الطقس", en: "Weather" },
+  mhTemp: { ar: "الحرارة", en: "Temp." },
+  mhVisibility: { ar: "الرؤية", en: "Visibility" },
+  mhCeiling: { ar: "السقف", en: "Ceiling" },
+  mhWind: { ar: "الرياح", en: "Wind" },
+  mhRaw: { ar: "METAR", en: "METAR" },
   decodedTitle: { ar: "تفاصيل الأرصاد", en: "Decoded Details" },
   tafTimelineTitle: { ar: "توقعات TAF", en: "TAF Forecast Timeline" },
   thPeriod: { ar: "الفترة الزمنية", en: "Period" },
@@ -686,6 +695,50 @@ function renderTaf(taf, tzOffset) {
   tbody.innerHTML = rows.join("");
 }
 
+/* ---------- METAR history ---------- */
+function weatherIcon(m) {
+  const wx = (m.wxString || "").toUpperCase();
+  if (wx.includes("TS")) return "⛈️";
+  if (wx.includes("RA") || wx.includes("DZ") || wx.includes("SH")) return "🌧️";
+  if (wx.includes("SN")) return "❄️";
+  if (wx.includes("FG") || wx.includes("BR") || wx.includes("HZ") || wx.includes("DU") || wx.includes("SA")) return "🌫️";
+  const covers = (m.clouds || []).map((c) => (c.cover || "").toUpperCase());
+  if (covers.includes("OVC") || covers.includes("VV")) return "☁️";
+  if (covers.includes("BKN")) return "🌥️";
+  if (covers.includes("SCT") || covers.includes("FEW")) return "🌤️";
+  return "☀️";
+}
+
+function renderMetarHistory(history, tzOffset) {
+  const tbody = document.querySelector("#metar-history-table tbody");
+  if (!history || history.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8">${t("none")}</td></tr>`;
+    return;
+  }
+
+  const rows = history.map((m) => {
+    const cat = m.fltCat || computeFlightCategory(parseVisib(m.visib), parseCeilingFt(m.clouds));
+    const ceil = parseCeilingFt(m.clouds);
+    let timeTxt = "--";
+    if (m.obsTime) {
+      const l = new Date(m.obsTime * 1000 + (tzOffset ?? 0) * 3600000);
+      timeTxt = `${pad2(l.getUTCDate())}/${pad2(l.getUTCMonth() + 1)} ${pad2(l.getUTCHours())}:${pad2(l.getUTCMinutes())}`;
+    }
+    return `<tr>
+      <td>${timeTxt}</td>
+      <td><span class="cat-pill ${cat}">${cat}</span></td>
+      <td>${weatherIcon(m)}</td>
+      <td>${m.temp !== undefined && m.temp !== null ? fmtNum(m.temp) + "°C" : "--"}</td>
+      <td>${m.visib !== undefined && m.visib !== null ? m.visib + " SM" : "--"}</td>
+      <td>${ceil !== null ? ceil + " ft" : t("none")}</td>
+      <td>${fmtWind(m.wdir, m.wspd, m.wgst)}</td>
+      <td class="metar-raw-cell">${m.rawOb || "--"}</td>
+    </tr>`;
+  });
+
+  tbody.innerHTML = rows.join("");
+}
+
 /* ---------- Central render pipeline (no refetch) ---------- */
 function renderAll() {
   if (!state) return;
@@ -704,6 +757,7 @@ function renderAll() {
   document.getElementById("raw-metar").textContent = metar.rawOb || "N/A";
   document.getElementById("raw-taf").textContent = (taf && taf.rawTAF) || "N/A";
   renderTaf(taf, airport.tzOffset ?? 3);
+  renderMetarHistory(state.metarHistory, airport.tzOffset ?? 3);
 }
 
 /* ---------- Fetch & orchestrate ---------- */
@@ -751,10 +805,11 @@ async function loadWeather(icaoRaw) {
   banner.textContent = `${t("fetching")} ${icao}...`;
 
   try {
-    const [metarArr, tafArr, rainProb] = await Promise.all([
+    const [metarArr, tafArr, rainProb, metarHistory] = await Promise.all([
       fetchJson(`/proxy/metar?ids=${icao}`),
       fetchJson(`/proxy/taf?ids=${icao}`),
       airport.lat !== null ? fetchRainProbability(airport.lat, airport.lon) : Promise.resolve(null),
+      fetchJson(`/proxy/metar?ids=${icao}&hours=24`).catch(() => null),
     ]);
 
     if (!metarArr || metarArr.length === 0) {
@@ -766,7 +821,7 @@ async function loadWeather(icaoRaw) {
     const metar = metarArr[0];
     const taf = tafArr && tafArr.length ? tafArr[0] : null;
 
-    state = { icao, airport, metar, taf, rainProb, activeRunway: 0 };
+    state = { icao, airport, metar, taf, rainProb, metarHistory: metarHistory || [metar], activeRunway: 0 };
     renderAll();
 
     banner.className = "status-banner ok";

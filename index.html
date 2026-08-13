@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>طقس الطيران | مطار البحرين الدولي OBBI</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✈️</text></svg>">
-<link rel="stylesheet" href="style.css?v=6">
+<link rel="stylesheet" href="style.css?v=7">
 </head>
 <body>
 
@@ -132,6 +132,25 @@
       <pre id="raw-metar" class="raw-box">--</pre>
       <h2 class="mt"><span class="card-icon">📑</span><span data-i18n="rawTafTitle">تقرير TAF الخام</span></h2>
       <pre id="raw-taf" class="raw-box">--</pre>
+
+      <h2 class="mt"><span class="card-icon">🕘</span><span data-i18n="metarHistoryTitle">سجل METAR</span></h2>
+      <div class="metar-history-scroll">
+        <table class="metar-history-table" id="metar-history-table">
+          <thead>
+            <tr>
+              <th data-i18n="mhTime">الوقت</th>
+              <th data-i18n="mhCode">الحالة</th>
+              <th data-i18n="mhWeather">الطقس</th>
+              <th data-i18n="mhTemp">الحرارة</th>
+              <th data-i18n="mhVisibility">الرؤية</th>
+              <th data-i18n="mhCeiling">السقف</th>
+              <th data-i18n="mhWind">الرياح</th>
+              <th data-i18n="mhRaw">METAR</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </div>
 
     <div class="card">
@@ -239,7 +258,7 @@
   <p class="site-credit">Done by: E. Ahmed Ali Mansoor</p>
 </footer>
 
-<script src="script.js?v=6"></script>
-<script src="navaids.js?v=6"></script>
+<script src="script.js?v=7"></script>
+<script src="navaids.js?v=7"></script>
 </body>
 </html>

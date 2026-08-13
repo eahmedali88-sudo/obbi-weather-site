@@ -50,6 +50,15 @@ class Handler(SimpleHTTPRequestHandler):
             return
 
         url = f"{UPSTREAM}/{kind}?ids={ids}&format=json"
+
+        if kind == "metar":
+            hours_raw = (qs.get("hours") or [""])[0]
+            if hours_raw:
+                try:
+                    hours = max(1, min(72, int(hours_raw)))
+                    url += f"&hours={hours}"
+                except ValueError:
+                    pass
         last_error = None
         for attempt in range(2):  # one retry on transient empty/invalid upstream response
             try:

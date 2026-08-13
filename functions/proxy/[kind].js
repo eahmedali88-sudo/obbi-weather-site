@@ -24,7 +24,14 @@ export async function onRequestGet(context) {
     return jsonError(400, "invalid ids parameter");
   }
 
-  const upstreamUrl = `${UPSTREAM}/${kind}?ids=${ids}&format=json`;
+  let upstreamUrl = `${UPSTREAM}/${kind}?ids=${ids}&format=json`;
+  if (kind === "metar") {
+    const hoursRaw = url.searchParams.get("hours");
+    if (hoursRaw) {
+      const hours = Math.max(1, Math.min(72, parseInt(hoursRaw, 10) || 0));
+      if (hours) upstreamUrl += `&hours=${hours}`;
+    }
+  }
   let lastError = null;
 
   for (let attempt = 0; attempt < 2; attempt++) {

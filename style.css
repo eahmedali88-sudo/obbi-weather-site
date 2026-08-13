@@ -410,6 +410,12 @@ td.val { direction: ltr; font-weight: 700; }
 .taf-scroll { overflow-x: auto; }
 .taf-table { min-width: 700px; }
 .taf-table td { direction: ltr; }
+
+.metar-history-scroll { overflow: auto; max-height: 360px; border: 1px solid var(--border); border-radius: 10px; }
+.metar-history-table { min-width: 780px; font-size: 0.85rem; }
+.metar-history-table td { direction: ltr; }
+.metar-history-table thead th { position: sticky; top: 0; background: var(--bg-card-solid); z-index: 1; }
+.metar-raw-cell { font-family: "Consolas", "Courier New", monospace; font-size: 0.78rem; color: #7dd3fc; white-space: nowrap; }
 .cat-pill { display: inline-block; padding: 3px 11px; border-radius: 20px; font-size: 0.78rem; font-weight: 800; color: white; }
 .cat-pill.VFR { background: linear-gradient(135deg, #22c55e, #16803c); }
 .cat-pill.MVFR { background: linear-gradient(135deg, #3b82f6, #1e4fb8); }
