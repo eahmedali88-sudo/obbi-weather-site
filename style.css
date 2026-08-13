@@ -281,6 +281,7 @@ a { color: var(--azure); }
   grid-template-columns: 1fr 1fr;
   gap: 22px;
 }
+.grid-2 > * { min-width: 0; } /* grid items default to min-width:auto, which lets wide content (e.g. nowrap table cells) blow out the track */
 @media (max-width: 860px) {
   .grid-2 { grid-template-columns: 1fr; }
 }
@@ -380,6 +381,7 @@ table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
 th, td { padding: 9px 10px; text-align: center; border-bottom: 1px solid var(--border); }
 th { color: var(--text-dim); font-weight: 700; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.4px; }
 td.val { direction: ltr; font-weight: 700; }
+#runway-table-wrap { overflow-x: auto; }
 .wind-flag { display: inline-block; padding: 3px 9px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; white-space: nowrap; }
 .flag-head { background: rgba(34, 197, 94, 0.18); color: #4ade80; }
 .flag-tail { background: rgba(239, 68, 68, 0.18); color: #f87171; }
@@ -416,7 +418,7 @@ td.val { direction: ltr; font-weight: 700; }
 
 /* Daylight */
 .daylight-wrap { display: flex; align-items: center; gap: 26px; flex-wrap: wrap; }
-.sun-arc-svg { width: 320px; height: 130px; flex-shrink: 0; }
+.sun-arc-svg { width: 320px; max-width: 100%; height: auto; }
 .arc-path { fill: none; stroke: var(--border-strong); stroke-width: 2; }
 .horizon-line { stroke: var(--text-faint); stroke-width: 1; }
 .sun-dot { fill: var(--gold); filter: drop-shadow(0 0 6px rgba(242, 193, 78, 0.8)); }
@@ -429,12 +431,17 @@ td.val { direction: ltr; font-weight: 700; }
   gap: 22px;
   margin-top: 18px;
 }
+.navaid-tables > div {
+  min-width: 0; /* let grid items shrink below content size instead of forcing page-wide overflow */
+  overflow-x: auto;
+}
 .navaid-tables h3 {
   font-size: 0.85rem;
   color: var(--gold);
   margin: 0 0 8px;
   letter-spacing: 0.4px;
 }
+.navaid-data-table { min-width: 360px; }
 .navaid-data-table td, .navaid-data-table th { text-align: center; }
 .navaid-data-table td:nth-child(2) { text-align: start; }
 .navaid-data-table td { direction: ltr; }
