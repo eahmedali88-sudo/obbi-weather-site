@@ -222,6 +222,13 @@ const STR = {
   },
   notamBtn: { ar: "افتح بوابة معلومات الطيران الرسمية للبحرين (AIS)", en: "Open Bahrain's Official AIS Portal" },
 
+  heliTitle: { ar: "توقعات المروحيات والمنطقة المحلية", en: "Helicopter Ops & Local Area Forecast" },
+  heliHint: {
+    ar: "نشرة رسمية من إدارة الأرصاد الجوية البحرينية — رياح وحرارة من السطح حتى FL390، مستوى التجمد، منسوب التروبوبوز، وتحذيرات التجمد لدائرة 50 كم حول مطار البحرين الدولي.",
+    en: "Official bulletin from Bahrain's Meteorological Directorate — winds and temperature from the surface to FL390, freezing level, tropopause, and icing warnings for a 50km radius around Bahrain International Airport.",
+  },
+  heliBtn: { ar: "افتح نشرة توقعات المروحيات والمنطقة المحلية (PDF)", en: "Open Helicopter Ops / Local Area Forecast (PDF)" },
+
   commsTitle: { ar: "اتصالات مطار البحرين الدولي", en: "Bahrain International Airport Communications" },
   commsHint: {
     ar: "ترددات مرجعية — تحقق دائماً من آخر إصدار لمنشور معلومات الطيران (AIP) والنوتام قبل الاستخدام الفعلي.",
@@ -362,6 +369,27 @@ function fmtWind(wdir, wspd, wgst) {
   let s = `${dirTxt} / ${wspd} kt`;
   if (wgst) s += ` G${wgst}`;
   return s;
+}
+
+/* ---------- Unit preferences (temperature / visibility) ---------- */
+let tempUnit = localStorage.getItem("obbi_temp_unit") || "C";
+let visUnit = localStorage.getItem("obbi_vis_unit") || "SM";
+
+function fmtTemp(c) {
+  if (c === undefined || c === null) return "--";
+  if (tempUnit === "F") return `${Math.round((c * 9) / 5 + 32)}°F`;
+  return `${fmtNum(c)}°C`;
+}
+
+function fmtVis(rawVisib) {
+  if (rawVisib === undefined || rawVisib === null || rawVisib === "") return "--";
+  if (visUnit === "SM") return `${rawVisib} SM`;
+  const num = parseVisib(rawVisib);
+  if (num === null) return "--";
+  const hasPlus = typeof rawVisib === "string" && rawVisib.endsWith("+");
+  const km = num * 1.609344;
+  const kmStr = km >= 10 ? Math.round(km).toString() : km.toFixed(1);
+  return `${kmStr}${hasPlus ? "+" : ""} km`;
 }
 
 /* ---------- Clock ---------- */
@@ -788,11 +816,11 @@ function renderQuickStats(metar) {
 
   const stats = [
     { icon: "🚦", label: t("statCategory"), value: cat, cls: `cat-${cat}`, badge: true },
-    { icon: "🌡️", label: t("statTemp"), value: metar.temp !== undefined && metar.temp !== null ? `${fmtNum(metar.temp)}°C` : "--" },
-    { icon: "💧", label: t("statDew"), value: metar.dewp !== undefined && metar.dewp !== null ? `${fmtNum(metar.dewp)}°C` : "--" },
+    { icon: "🌡️", label: t("statTemp"), value: fmtTemp(metar.temp) },
+    { icon: "💧", label: t("statDew"), value: fmtTemp(metar.dewp) },
     { icon: "💦", label: t("statHumidity"), value: rh !== null ? `${rh}%` : "--" },
     { icon: "🧭", label: t("statWind"), value: fmtWind(metar.wdir, metar.wspd, metar.wgst) },
-    { icon: "👁️", label: t("statVisibility"), value: metar.visib !== undefined ? `${metar.visib} SM` : "--" },
+    { icon: "👁️", label: t("statVisibility"), value: fmtVis(metar.visib) },
     { icon: "🌧️", label: t("statRain"), value: state && state.rainProb !== null && state.rainProb !== undefined ? `${state.rainProb}%` : "--" },
     { icon: "📊", label: t("statQnh"), value: metar.altim !== undefined && metar.altim !== null ? `${fmtNum(metar.altim, 1)} hPa` : "--" },
     { icon: "🕐", label: t("statAge"), value: ageMin !== null ? `${ageMin} ${t("minutesAgo")}` : "--" },
@@ -817,12 +845,12 @@ function renderDecodedTable(metar) {
     [t("dName"), metar.name || "--"],
     [t("dTime"), metar.reportTime || "--"],
     [t("dCategory"), catLabel(metar.fltCat || computeFlightCategory(parseVisib(metar.visib), parseCeilingFt(metar.clouds)))],
-    [t("dTemp"), metar.temp !== undefined && metar.temp !== null ? `${fmtNum(metar.temp)} °C` : "--"],
-    [t("dDew"), metar.dewp !== undefined && metar.dewp !== null ? `${fmtNum(metar.dewp)} °C` : "--"],
+    [t("dTemp"), fmtTemp(metar.temp)],
+    [t("dDew"), fmtTemp(metar.dewp)],
     [t("dWindDir"), metar.wdir !== undefined && metar.wdir !== null ? `${padDir(metar.wdir)}°` : t("variable")],
     [t("dWindSpeed"), metar.wspd !== undefined ? `${metar.wspd} kt` : "--"],
     [t("dGust"), metar.wgst ? `${metar.wgst} kt` : t("none")],
-    [t("dVisibility"), metar.visib !== undefined ? `${metar.visib} SM` : "--"],
+    [t("dVisibility"), fmtVis(metar.visib)],
     [t("dQnh"), metar.altim !== undefined && metar.altim !== null ? `${fmtNum(metar.altim, 1)} hPa` : "--"],
     [t("dWeather"), metar.wxString || t("noWx")],
     [t("dClouds"), (metar.clouds || []).map((c) => `${c.cover}${c.base ? " " + c.base + "ft" : ""}`).join(" / ") || t("clearSky")],
@@ -858,7 +886,7 @@ function renderTaf(taf, tzOffset) {
     const kind = typeLabel[f.fcstType] || f.fcstType || t("periodINITIAL");
     const period = `${kind}<br><span class="hint" style="margin:0">${fmtT(from)} → ${fmtT(to)}</span>`;
     const wind = fmtWind(f.wdir, f.wspd, f.wgst);
-    const visTxt = f.visib !== undefined && f.visib !== null && f.visib !== "" ? `${f.visib} SM` : "--";
+    const visTxt = fmtVis(f.visib);
     const ceilTxt = ceil !== null ? `${ceil} ft` : t("none");
     const wx = f.wxString || "--";
 
@@ -908,8 +936,8 @@ function renderMetarHistory(history, tzOffset) {
       <td>${timeTxt}</td>
       <td><span class="cat-pill ${cat}">${cat}</span></td>
       <td>${weatherIcon(m)}</td>
-      <td>${m.temp !== undefined && m.temp !== null ? fmtNum(m.temp) + "°C" : "--"}</td>
-      <td>${m.visib !== undefined && m.visib !== null ? m.visib + " SM" : "--"}</td>
+      <td>${fmtTemp(m.temp)}</td>
+      <td>${fmtVis(m.visib)}</td>
       <td>${ceil !== null ? ceil + " ft" : t("none")}</td>
       <td>${fmtWind(m.wdir, m.wspd, m.wgst)}</td>
       <td class="metar-raw-cell">${m.rawOb || "--"}</td>
@@ -1070,6 +1098,28 @@ function setLang(l) {
 document.getElementById("lang-toggle").addEventListener("click", () => {
   setLang(lang === "ar" ? "en" : "ar");
 });
+
+/* ---------- Unit toggle buttons ---------- */
+function updateUnitButtons() {
+  document.getElementById("temp-unit-toggle").textContent = tempUnit === "C" ? "°F" : "°C";
+  document.getElementById("vis-unit-toggle").textContent = visUnit === "SM" ? "km" : "SM";
+}
+
+document.getElementById("temp-unit-toggle").addEventListener("click", () => {
+  tempUnit = tempUnit === "C" ? "F" : "C";
+  localStorage.setItem("obbi_temp_unit", tempUnit);
+  updateUnitButtons();
+  if (state) renderAll();
+});
+
+document.getElementById("vis-unit-toggle").addEventListener("click", () => {
+  visUnit = visUnit === "SM" ? "KM" : "SM";
+  localStorage.setItem("obbi_vis_unit", visUnit);
+  updateUnitButtons();
+  if (state) renderAll();
+});
+
+updateUnitButtons();
 
 /* ---------- Crosswind limit input ---------- */
 const xwindInput = document.getElementById("xwind-limit-input");
