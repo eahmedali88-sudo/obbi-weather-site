@@ -400,6 +400,40 @@ td.val { direction: ltr; font-weight: 700; }
 .flag-head { background: rgba(34, 197, 94, 0.18); color: #4ade80; }
 .flag-tail { background: rgba(239, 68, 68, 0.18); color: #f87171; }
 .flag-cross { background: rgba(242, 193, 78, 0.18); color: var(--gold); }
+.flag-exceeded { background: rgba(239, 68, 68, 0.22); color: #f87171; }
+.xwind-exceeded-note { font-size: 0.72rem; color: #f87171; font-weight: 700; }
+.xwind-row-exceeded { background: rgba(239, 68, 68, 0.06); }
+
+.xwind-limit-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+.xwind-limit-row input {
+  width: 70px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-card-solid);
+  color: var(--text);
+  text-align: center;
+  direction: ltr;
+}
+.xwind-limit-row input:focus { outline: none; border-color: var(--gold); }
+
+/* Density altitude */
+.da-wrap { display: flex; align-items: center; gap: 30px; flex-wrap: wrap; }
+.da-main { display: flex; flex-direction: column; gap: 4px; }
+.da-label { font-size: 0.78rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+.da-value { font-size: 2.2rem; font-weight: 900; direction: ltr; color: var(--text); }
+.da-value.da-warn { color: var(--gold); }
+.da-value.da-severe { color: #f87171; }
+.da-secondary { display: flex; flex-direction: column; gap: 8px; }
+.da-secondary > div { display: flex; gap: 10px; justify-content: space-between; min-width: 220px; border-bottom: 1px dashed var(--border); padding-bottom: 4px; }
 
 /* Raw text */
 .raw-box {

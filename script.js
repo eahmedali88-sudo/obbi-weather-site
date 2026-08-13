@@ -133,6 +133,27 @@ const STR = {
   fromLeft: { ar: "من اليسار", en: "from left" },
   noRunwayData: { ar: "لا تتوفر بيانات مدرج مسجّلة لهذا المطار في قاعدة البيانات المحلية.", en: "No runway data registered for this airport in the local database." },
   noWindData: { ar: "بيانات الرياح غير متوفرة حالياً.", en: "Wind data currently unavailable." },
+  xwindLimitLabel: { ar: "الحد الأقصى للرياح الجانبية لطائرتك (kt)", en: "Your aircraft's max demonstrated crosswind (kt)" },
+  xwindExceeded: { ar: "⚠️ يتجاوز حدك الشخصي", en: "⚠️ Exceeds your limit" },
+
+  daTitle: { ar: "ارتفاع الكثافة (Density Altitude)", en: "Density Altitude" },
+  daHint: {
+    ar: "محسوب من درجة الحرارة والضغط الحاليين وارتفاع المطار — يؤثر مباشرة على أداء الإقلاع والتسلق.",
+    en: "Computed from the current temperature, altimeter setting, and field elevation — directly affects takeoff and climb performance.",
+  },
+  daLabel: { ar: "ارتفاع الكثافة", en: "Density Altitude" },
+  daFieldElev: { ar: "ارتفاع المطار", en: "Field Elevation" },
+  daPressureAlt: { ar: "الارتفاع الضغطي", en: "Pressure Altitude" },
+  daDiff: { ar: "الفرق عن الارتفاع الفعلي", en: "Difference from Field Elevation" },
+  daNoteSevere: {
+    ar: "الأداء منخفض بشكل ملحوظ اليوم — توقّع مسافة إقلاع أطول ومعدل تسلق أبطأ بكثير. تعامل مع الأمر وكأن المطار أعلى بكثير مما هو عليه فعلياً.",
+    en: "Performance is significantly degraded today — expect a much longer takeoff roll and reduced climb rate. Treat this like departing from a considerably higher airfield.",
+  },
+  daNoteModerate: {
+    ar: "تأثير ملحوظ على الأداء — راجع جداول أداء طائرتك قبل الإقلاع.",
+    en: "Noticeable performance impact — check your aircraft's performance charts before departure.",
+  },
+  daNoteNormal: { ar: "تأثير الأداء ضئيل اليوم.", en: "Performance impact is minimal today." },
 
   periodFM: { ar: "من", en: "From" },
   periodBECMG: { ar: "تحوّل تدريجي", en: "Becoming" },
@@ -544,6 +565,12 @@ function renderRunwaySelector(airport) {
 }
 
 /* ---------- Runway crosswind table ---------- */
+function getXwindLimit() {
+  const raw = localStorage.getItem("obbi_xwind_limit");
+  const n = parseFloat(raw);
+  return raw && !isNaN(n) && n > 0 ? n : null;
+}
+
 function renderRunwayTable(airport, wdir, wspd) {
   const wrap = document.getElementById("runway-table-wrap");
   if (!airport.runways || airport.runways.length === 0) {
@@ -555,6 +582,7 @@ function renderRunwayTable(airport, wdir, wspd) {
     return;
   }
 
+  const limit = getXwindLimit();
   let rows = "";
   for (const rw of airport.runways) {
     const options = rw.hdgs.map((h) => ({ h, ...windComponents(wdir, wspd, h) }));
@@ -569,9 +597,12 @@ function renderRunwayTable(airport, wdir, wspd) {
 
     const crossAbs = Math.abs(best.crosswind);
     const crossSide = best.crosswind >= 0 ? t("fromRight") : t("fromLeft");
-    const crossFlag = `<span class="wind-flag flag-cross">${t("crosswind")} ${fmtNum(crossAbs, 1)} kt ${crossSide}</span>`;
+    const exceeded = limit !== null && crossAbs > limit;
+    const crossFlag = `<span class="wind-flag ${exceeded ? "flag-exceeded" : "flag-cross"}">${t("crosswind")} ${fmtNum(crossAbs, 1)} kt ${crossSide}</span>${
+      exceeded ? `<br><span class="xwind-exceeded-note">${t("xwindExceeded")}</span>` : ""
+    }`;
 
-    rows += `<tr>
+    rows += `<tr${exceeded ? ' class="xwind-row-exceeded"' : ""}>
       <td><strong>${rw.id}</strong><br><span class="hint" style="margin:0">${t("activeRunway")}: ${runwayLabel} (${best.h}°)</span></td>
       <td class="val">${windFlag}</td>
       <td class="val">${crossFlag}</td>
@@ -582,6 +613,46 @@ function renderRunwayTable(airport, wdir, wspd) {
     <thead><tr><th>${t("colRunway")}</th><th>${t("colHeadTail")}</th><th>${t("colCross")}</th></tr></thead>
     <tbody>${rows}</tbody>
   </table>`;
+}
+
+/* ---------- Density altitude ---------- */
+function computeDensityAltitude(tempC, altimHpa, elevFt) {
+  if (tempC === undefined || tempC === null || altimHpa === undefined || altimHpa === null || elevFt === undefined || elevFt === null) {
+    return null;
+  }
+  const altimInHg = altimHpa * 0.0295299830714;
+  const pressureAlt = elevFt + (29.92 - altimInHg) * 1000;
+  const isaTemp = 15 - 2 * (pressureAlt / 1000);
+  const densityAlt = pressureAlt + 120 * (tempC - isaTemp);
+  return { pressureAlt, densityAlt };
+}
+
+function renderDensityAltitude(metar) {
+  const card = document.getElementById("da-card");
+  const result = computeDensityAltitude(metar.temp, metar.altim, metar.elev);
+  if (!result) {
+    card.style.display = "none";
+    return;
+  }
+  card.style.display = "";
+
+  const diff = result.densityAlt - metar.elev;
+  document.getElementById("da-value").textContent = `${Math.round(result.densityAlt).toLocaleString()} ft`;
+  document.getElementById("da-elev").textContent = `${Math.round(metar.elev).toLocaleString()} ft`;
+  document.getElementById("da-pa").textContent = `${Math.round(result.pressureAlt).toLocaleString()} ft`;
+  document.getElementById("da-diff").textContent = `${diff >= 0 ? "+" : ""}${Math.round(diff).toLocaleString()} ft`;
+
+  const valueEl = document.getElementById("da-value");
+  valueEl.classList.remove("da-warn", "da-severe");
+  let note = t("daNoteNormal");
+  if (diff > 3000) {
+    valueEl.classList.add("da-severe");
+    note = t("daNoteSevere");
+  } else if (diff > 1500) {
+    valueEl.classList.add("da-warn");
+    note = t("daNoteModerate");
+  }
+  document.getElementById("da-note").textContent = note;
 }
 
 /* ---------- Hero category banner ---------- */
@@ -823,6 +894,7 @@ function renderAll() {
   renderHeroRunway(metar, airport);
   renderQuickStats(metar);
   renderSigmets(airport, state.sigmets);
+  renderDensityAltitude(metar);
   renderCompass(metar.wdir ?? null, metar.wspd ?? null, metar.wgst ?? null);
   renderRunwaySelector(airport);
   renderRunwayMark(airport, state.activeRunway, metar.wdir ?? null);
@@ -956,6 +1028,19 @@ function setLang(l) {
 document.getElementById("lang-toggle").addEventListener("click", () => {
   setLang(lang === "ar" ? "en" : "ar");
 });
+
+/* ---------- Crosswind limit input ---------- */
+const xwindInput = document.getElementById("xwind-limit-input");
+if (xwindInput) {
+  const stored = getXwindLimit();
+  if (stored !== null) xwindInput.value = stored;
+  xwindInput.addEventListener("input", () => {
+    const v = xwindInput.value.trim();
+    if (v) localStorage.setItem("obbi_xwind_limit", v);
+    else localStorage.removeItem("obbi_xwind_limit");
+    if (state) renderRunwayTable(state.airport, state.metar.wdir ?? null, state.metar.wspd ?? null);
+  });
+}
 
 /* ---------- Init ---------- */
 applyStaticTranslations();

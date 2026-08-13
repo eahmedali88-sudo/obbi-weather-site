@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>طقس الطيران | مطار البحرين الدولي OBBI</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✈️</text></svg>">
-<link rel="stylesheet" href="style.css?v=8">
+<link rel="stylesheet" href="style.css?v=9">
 </head>
 <body>
 
@@ -85,6 +85,23 @@
     <div id="sigmet-body"></div>
   </section>
 
+  <section class="card" id="da-card">
+    <h2><span class="card-icon">🌡️</span><span data-i18n="daTitle">ارتفاع الكثافة (Density Altitude)</span></h2>
+    <p class="hint" data-i18n="daHint">محسوب من درجة الحرارة والضغط الحاليين وارتفاع المطار — يؤثر مباشرة على أداء الإقلاع والتسلق.</p>
+    <div class="da-wrap">
+      <div class="da-main">
+        <span class="da-label" data-i18n="daLabel">ارتفاع الكثافة</span>
+        <span class="da-value" id="da-value">-- ft</span>
+      </div>
+      <div class="da-secondary">
+        <div><span class="ro-label" data-i18n="daFieldElev">ارتفاع المطار</span><span id="da-elev" class="ro-value">-- ft</span></div>
+        <div><span class="ro-label" data-i18n="daPressureAlt">الارتفاع الضغطي</span><span id="da-pa" class="ro-value">-- ft</span></div>
+        <div><span class="ro-label" data-i18n="daDiff">الفرق عن الارتفاع الفعلي</span><span id="da-diff" class="ro-value">-- ft</span></div>
+      </div>
+    </div>
+    <p class="hint" id="da-note" style="margin-top:12px; margin-bottom:0"></p>
+  </section>
+
   <section class="grid-2">
     <div class="card compass-card">
       <h2><span class="card-icon">🧭</span><span data-i18n="windTitle">اتجاه وسرعة الرياح</span></h2>
@@ -128,6 +145,10 @@
     <div class="card">
       <h2><span class="card-icon">🛬</span><span data-i18n="crosswindTitle">الرياح الجانبية والأمامية للمدرج</span></h2>
       <p class="hint" data-i18n="crosswindHint">القيم تقديرية لأغراض المعلومات فقط — لا تُستخدم للتخطيط الفعلي.</p>
+      <div class="xwind-limit-row">
+        <label for="xwind-limit-input" data-i18n="xwindLimitLabel">الحد الأقصى للرياح الجانبية لطائرتك (kt)</label>
+        <input type="number" id="xwind-limit-input" min="0" max="99" step="1" placeholder="--">
+      </div>
       <div id="runway-table-wrap"></div>
     </div>
   </section>
@@ -264,7 +285,7 @@
   <p class="site-credit">Done by: E. Ahmed Ali Mansoor</p>
 </footer>
 
-<script src="script.js?v=8"></script>
-<script src="navaids.js?v=8"></script>
+<script src="script.js?v=9"></script>
+<script src="navaids.js?v=9"></script>
 </body>
 </html>
