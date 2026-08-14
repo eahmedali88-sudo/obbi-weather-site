@@ -232,16 +232,30 @@ function render() {
   renderList();
 }
 
+async function loadOnce() {
+  const res = await fetch(PDF_PROXY_URL);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const buf = await res.arrayBuffer();
+  const text = await extractPdfText(buf);
+  const parsed = parsePib(text);
+  if (!parsed.systemTime) throw new Error("could not parse NOTAM PDF");
+  lastResult = parsed;
+}
+
 async function load() {
   try {
-    const res = await fetch(PDF_PROXY_URL);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const buf = await res.arrayBuffer();
-    const text = await extractPdfText(buf);
-    const parsed = parsePib(text);
-    if (parsed.systemTime) lastResult = parsed;
+    await loadOnce();
   } catch (err) {
-    console.error("Failed to load NOTAM bulletin", err);
+    // The first attempt on page load competes with the other PDF cards for
+    // the same large pdf.js worker file, so a slow/weak connection can time
+    // one of them out. One retry after a short pause covers that case
+    // without masking a genuinely broken source.
+    try {
+      await new Promise((r) => setTimeout(r, 1500));
+      await loadOnce();
+    } catch (err2) {
+      console.error("Failed to load NOTAM bulletin", err2);
+    }
   }
   render();
 }
@@ -252,5 +266,7 @@ document.addEventListener("visibilitychange", () => {
 });
 window.addEventListener("pageshow", load);
 
-load();
+// Staggered so this doesn't fight bulletin.js for the same large pdf.js
+// worker file on first page load (they'd otherwise fire simultaneously).
+setTimeout(load, 400);
 setInterval(load, REFRESH_MS);

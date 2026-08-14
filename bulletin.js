@@ -125,17 +125,31 @@ function render() {
     (expired ? `<br>${t("bulletinExpired")}` : "");
 }
 
+async function loadOnce() {
+  const res = await fetch(PDF_PROXY_URL);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const buf = await res.arrayBuffer();
+  const text = await extractPdfText(buf);
+  const parsed = parseBulletin(text);
+  if (!parsed) throw new Error("could not parse bulletin PDF");
+  lastBulletin = parsed;
+}
+
 async function load() {
   try {
-    const res = await fetch(PDF_PROXY_URL);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const buf = await res.arrayBuffer();
-    const text = await extractPdfText(buf);
-    const parsed = parseBulletin(text);
-    if (parsed) lastBulletin = parsed;
+    await loadOnce();
   } catch (err) {
-    console.error("Failed to load public weather bulletin", err);
-    // keep showing the last good bulletin (if any) rather than blanking it
+    // The first attempt on page load competes with the other PDF cards for
+    // the same large pdf.js worker file, so a slow/weak connection can time
+    // one of them out. One retry after a short pause covers that case
+    // without masking a genuinely broken source; if both fail we keep
+    // showing the last good bulletin (if any) rather than blanking it.
+    try {
+      await new Promise((r) => setTimeout(r, 1500));
+      await loadOnce();
+    } catch (err2) {
+      console.error("Failed to load public weather bulletin", err2);
+    }
   }
   render();
 }
