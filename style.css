@@ -73,9 +73,8 @@ a { color: var(--azure); }
   flex-wrap: wrap;
 }
 .brand { display: flex; align-items: center; gap: 14px; }
-.brand-badge { width: 44px; height: 44px; flex-shrink: 0; }
-.badge-ring { fill: #0c1f3d; stroke: var(--gold); stroke-width: 1.5; }
-.badge-star { fill: var(--gold); }
+.brand-badge { height: 44px; width: auto; flex-shrink: 0; display: flex; align-items: center; }
+.brand-badge-img { height: 100%; width: auto; display: block; }
 .brand-text h1 { font-size: 1.18rem; margin: 0; letter-spacing: 0.2px; }
 .brand-sub { margin: 3px 0 0; font-size: 0.76rem; color: var(--text-dim); }
 
