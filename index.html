@@ -153,6 +153,14 @@
   </section>
 
   <section class="grid-2">
+    <div class="card notam-card" id="bulletin-card">
+      <h2><span class="card-icon">📰</span><span data-i18n="bulletinTitle">النشرة الجوية العامة (البحرين)</span></h2>
+      <table class="decoded-table" id="bulletin-table">
+        <tbody></tbody>
+      </table>
+      <p class="hint" id="bulletin-validity" style="margin:10px 0 0"></p>
+    </div>
+
     <div class="card">
       <h2><span class="card-icon">📄</span><span data-i18n="rawMetarTitle">تقرير METAR الخام</span></h2>
       <pre id="raw-metar" class="raw-box">--</pre>
@@ -177,14 +185,6 @@
           <tbody></tbody>
         </table>
       </div>
-    </div>
-
-    <div class="card notam-card" id="bulletin-card">
-      <h2><span class="card-icon">📰</span><span data-i18n="bulletinTitle">النشرة الجوية العامة (البحرين)</span></h2>
-      <table class="decoded-table" id="bulletin-table">
-        <tbody></tbody>
-      </table>
-      <p class="hint" id="bulletin-validity" style="margin:10px 0 0"></p>
     </div>
   </section>
 
@@ -327,8 +327,8 @@
   </a>
 </footer>
 
-<script src="script.js?v=27"></script>
-<script src="navaids.js?v=27"></script>
+<script src="script.js?v=28"></script>
+<script src="navaids.js?v=28"></script>
 <script type="module" src="bulletin.js?v=1"></script>
 </body>
 </html>
