@@ -548,7 +548,25 @@ td.val { direction: ltr; font-weight: 700; }
   margin-top: 6px;
 }
 .site-footer a { color: var(--azure); }
-.site-credit { font-size: 0.7rem; color: var(--text-faint); margin-top: 4px; direction: ltr; }
+.site-credit {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-decoration: none;
+  direction: ltr;
+  border: 1px solid var(--border);
+  transition: border-color 0.15s, color 0.15s;
+}
+.site-credit:hover { border-color: var(--azure); color: var(--text); }
+.site-credit-logo { height: 20px; width: auto; display: block; }
+.site-credit-ig { color: var(--azure); }
+.site-credit-ig::before { content: "· "; color: var(--text-faint); }
 
 /* Fade-in on data render */
 .fade-in { animation: fadeIn 0.4s ease; }
