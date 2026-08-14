@@ -12,8 +12,21 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = "./vendor/pdf.worker.min.mjs?v=1";
 
 const PDF_PROXY_URL = "/proxy/bulletin";
 const REFRESH_MS = 5 * 60 * 1000;
+const LOAD_TIMEOUT_MS = 20000;
 
 let lastBulletin = null;
+
+// Some mobile browsers silently fail to spin up pdf.js's Worker (module
+// worker support gaps, CSP quirks, etc.), and getDocument() can then hang
+// forever instead of rejecting — leaving the card blank with no error and
+// no retry ever firing. Bound every attempt so a hang always turns into a
+// visible failure instead of infinite silence.
+function withTimeout(promise, ms) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error("timed out")), ms)),
+  ]);
+}
 
 function field(label, text) {
   const re = new RegExp("\\n" + label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\n([^\\n]+)");
@@ -126,10 +139,10 @@ function render() {
 }
 
 async function loadOnce() {
-  const res = await fetch(PDF_PROXY_URL);
+  const res = await withTimeout(fetch(PDF_PROXY_URL), LOAD_TIMEOUT_MS);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const buf = await res.arrayBuffer();
-  const text = await extractPdfText(buf);
+  const text = await withTimeout(extractPdfText(buf), LOAD_TIMEOUT_MS);
   const parsed = parseBulletin(text);
   if (!parsed) throw new Error("could not parse bulletin PDF");
   lastBulletin = parsed;
