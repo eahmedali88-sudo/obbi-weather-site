@@ -1220,6 +1220,20 @@ if (xwindInput) {
   });
 }
 
+/* ---------- Refresh on return to foreground ---------- */
+/* Mobile browsers throttle/suspend setInterval timers while a tab is
+   backgrounded (locked screen, app switch), so REFRESH_MS alone can leave
+   stale weather on screen for a long time with no visual warning. Force a
+   refetch the moment the tab becomes visible again. */
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && state) {
+    loadWeather(state.icao);
+  }
+});
+window.addEventListener("pageshow", () => {
+  if (state) loadWeather(state.icao);
+});
+
 /* ---------- Init ---------- */
 applyStaticTranslations();
 renderComms();
