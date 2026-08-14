@@ -1,8 +1,0 @@
-{
-  "name": "obbi-weather-site",
-  "private": true,
-  "description": "Cloudflare Pages Functions dependencies for the OBBI pilot weather briefing site.",
-  "dependencies": {
-    "unpdf": "^1.8.1"
-  }
-}

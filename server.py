@@ -1,9 +1,9 @@
 """
 خادم بسيط لموقع طقس الطيارين: يخدم الملفات الثابتة (HTML/CSS/JS)
-ويعمل كوسيط (proxy) لطلبات METAR/TAF من aviationweather.gov لتفادي
-قيود CORS في المتصفح. يعتمد على Python stdlib فقط، باستثناء مسار
-/proxy/bulletin الذي يحتاج pypdf (pip install pypdf) لاستخراج نص
-نشرة الأرصاد البحرينية من ملف PDF — يقابله في الإنتاج functions/proxy/bulletin.js.
+ويعمل كوسيط (proxy) لطلبات METAR/TAF من aviationweather.gov ونشرة
+الأرصاد البحرينية (PDF) لتفادي قيود CORS في المتصفح. لا يحتاج مكتبات
+خارجية (Python stdlib فقط) — استخراج نص PDF يتم في المتصفح عبر pdf.js
+(انظر bulletin.js)، وليس هنا.
 
 تشغيل:
     python server.py [PORT]
@@ -15,7 +15,6 @@ import re
 import sys
 import urllib.error
 import urllib.request
-from datetime import date, timedelta
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
 
@@ -26,68 +25,6 @@ ICAO_RE = re.compile(r"^[A-Za-z0-9,]{1,40}$")
 BULLETIN_PDF_URL = "https://www.bahrainweather.gov.bh/files/forecasts/BMD_PublicWeatherForecast.pdf"
 # Hosting platforms (Render, Railway, Fly, etc.) assign the port via $PORT.
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else int(os.environ.get("PORT", 8765))
-
-
-def _field(label, text):
-    m = re.search(r"\n" + re.escape(label) + r"\n([^\n]+)", text)
-    return m.group(1).strip() if m else None
-
-
-def _to_24h(h, m, ampm):
-    h = int(h)
-    if ampm.upper() == "PM" and h != 12:
-        h += 12
-    if ampm.upper() == "AM" and h == 12:
-        h = 0
-    return h, int(m)
-
-
-def _iso_bahrain(year, month, day, h, m):
-    return f"{year:04d}-{month:02d}-{day:02d}T{h:02d}:{m:02d}:00+03:00"
-
-
-def parse_bulletin(text):
-    """Mirrors functions/proxy/bulletin.js — keep both in sync."""
-    weather = _field("Weather", text)
-    wind = _field("Wind", text)
-    warning = _field("Warning", text)
-    sea_state = _field("Sea State", text)
-
-    valid_m = re.search(
-        r"valid from (\d{3,4})(AM|PM) on (\d{1,2}) (\d{1,2}) (\d{4})\s*\n?\s*until (\d{3,4})(AM|PM) tomorrow",
-        text,
-        re.IGNORECASE,
-    )
-    issued_m = re.search(r"Issued:\s*(\d{2})/(\d{2})/(\d{4})\s+(\d{1,2}):(\d{2})\s*(AM|PM)", text, re.IGNORECASE)
-
-    if not (weather and wind and warning and sea_state and valid_m):
-        return None
-
-    from_hhmm, from_ap, day_s, month_s, year_s, until_hhmm, until_ap = valid_m.groups()
-    day, month, year = int(day_s), int(month_s), int(year_s)
-    fh, fm = _to_24h(from_hhmm[:-2], from_hhmm[-2:], from_ap)
-    uh, um = _to_24h(until_hhmm[:-2], until_hhmm[-2:], until_ap)
-
-    valid_from = _iso_bahrain(year, month, day, fh, fm)
-    tomorrow = date(year, month, day) + timedelta(days=1)
-    valid_until = _iso_bahrain(tomorrow.year, tomorrow.month, tomorrow.day, uh, um)
-
-    issued = None
-    if issued_m:
-        i_day, i_month, i_year, i_h, i_m, i_ap = issued_m.groups()
-        ih, im = _to_24h(i_h, i_m, i_ap)
-        issued = _iso_bahrain(int(i_year), int(i_month), int(i_day), ih, im)
-
-    return {
-        "weather": weather,
-        "wind": wind,
-        "warning": warning,
-        "seaState": sea_state,
-        "validFrom": valid_from,
-        "validUntil": valid_until,
-        "issued": issued,
-        "sourceUrl": BULLETIN_PDF_URL,
-    }
 
 
 class Handler(SimpleHTTPRequestHandler):
@@ -162,12 +99,6 @@ class Handler(SimpleHTTPRequestHandler):
 
     def handle_bulletin(self):
         try:
-            from pypdf import PdfReader
-        except ImportError:
-            self.send_json_error(500, "pypdf not installed (pip install pypdf)")
-            return
-
-        try:
             req = urllib.request.Request(BULLETIN_PDF_URL, headers={"User-Agent": "Mozilla/5.0"})
             with urllib.request.urlopen(req, timeout=10) as resp:
                 pdf_bytes = resp.read()
@@ -175,27 +106,16 @@ class Handler(SimpleHTTPRequestHandler):
             self.send_json_error(502, f"upstream error: {e}")
             return
 
-        try:
-            import io
-
-            reader = PdfReader(io.BytesIO(pdf_bytes))
-            text = reader.pages[0].extract_text()
-            data = parse_bulletin(text)
-        except Exception as e:  # noqa: BLE001
-            data = None
-            sys.stderr.write(f"bulletin parse error: {e}\n")
-
-        if not data:
-            self.send_json_error(502, "could not parse bulletin PDF (source format may have changed)")
+        if not pdf_bytes:
+            self.send_json_error(502, "empty response from upstream")
             return
 
-        body = json.dumps(data).encode("utf-8")
         self.send_response(200)
-        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Content-Type", "application/pdf")
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Cache-Control", "no-store")
         self.end_headers()
-        self.wfile.write(body)
+        self.wfile.write(pdf_bytes)
 
     def send_json_error(self, code, message):
         self.send_response(code)
