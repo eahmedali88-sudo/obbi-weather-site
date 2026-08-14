@@ -239,10 +239,6 @@ const STR = {
   notamBtn: { ar: "افتح بوابة معلومات الطيران الرسمية للبحرين (AIS)", en: "Open Bahrain's Official AIS Portal" },
 
   bulletinTitle: { ar: "النشرة الجوية العامة (البحرين)", en: "Public Weather Bulletin (Bahrain)" },
-  bulletinHint: {
-    ar: "نشرة رسمية من إدارة الأرصاد الجوية البحرينية — تُستخرج تلقائياً من نشرة PDF الرسمية وتتحدث كل 5 دقائق.",
-    en: "Official bulletin from Bahrain's Meteorological Directorate — auto-extracted from their official PDF and refreshed every 5 minutes.",
-  },
   bWeather: { ar: "الطقس", en: "Weather" },
   bWind: { ar: "الرياح", en: "Wind" },
   bWarning: { ar: "التحذير", en: "Warning" },
