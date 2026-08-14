@@ -24,6 +24,7 @@ UPSTREAM = "https://aviationweather.gov/api/data"
 ICAO_RE = re.compile(r"^[A-Za-z0-9,]{1,40}$")
 BULLETIN_PDF_URL = "https://www.bahrainweather.gov.bh/files/forecasts/BMD_PublicWeatherForecast.pdf"
 NOTAM_PDF_URL = "https://aim.mtt.gov.bh/sites/default/files/pdf_download/ePib%20scheduler.pdf"
+HELI_PDF_URL = "https://www.bahrainweather.gov.bh/files/forecasts/BMD_ForecastWeatherForLocalArea.pdf"
 # Hosting platforms (Render, Railway, Fly, etc.) assign the port via $PORT.
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else int(os.environ.get("PORT", 8765))
 
@@ -42,6 +43,10 @@ class Handler(SimpleHTTPRequestHandler):
 
         if parsed.path == "/proxy/notam":
             self.handle_pdf_proxy(NOTAM_PDF_URL)
+            return
+
+        if parsed.path == "/proxy/heli":
+            self.handle_pdf_proxy(HELI_PDF_URL)
             return
 
         return super().do_GET()

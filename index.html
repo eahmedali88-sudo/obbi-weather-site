@@ -234,7 +234,10 @@
 
   <section class="card notam-card" id="heli-card">
     <h2><span class="card-icon">🚁</span><span data-i18n="heliTitle">توقعات المروحيات والمنطقة المحلية</span></h2>
-    <p class="hint" data-i18n="heliHint">نشرة رسمية من إدارة الأرصاد الجوية البحرينية — رياح وحرارة من السطح حتى FL390، مستوى التجمد، منسوب التروبوبوز، وتحذيرات التجمد لدائرة 50 كم حول مطار البحرين الدولي.</p>
+    <p class="hint" data-i18n="heliHint">مستخرجة تلقائياً من نشرة إدارة الأرصاد الجوية البحرينية الرسمية — رياح وحرارة من السطح حتى FL390، مستوى التجمد، منسوب التروبوبوز، وتحذيرات التجمد لدائرة 50 كم حول مطار البحرين الدولي.</p>
+    <div id="heli-freshness" class="notam-freshness"></div>
+    <div id="heli-content"></div>
+
     <a class="notam-btn" href="https://www.bahrainweather.gov.bh/files/forecasts/BMD_ForecastWeatherForLocalArea.pdf" target="_blank" rel="noopener">
       <span data-i18n="heliBtn">افتح نشرة توقعات المروحيات والمنطقة المحلية (PDF)</span> ↗
     </a>
@@ -327,9 +330,10 @@
   </a>
 </footer>
 
-<script src="script.js?v=30"></script>
-<script src="navaids.js?v=30"></script>
+<script src="script.js?v=31"></script>
+<script src="navaids.js?v=31"></script>
 <script type="module" src="bulletin.js?v=1"></script>
 <script type="module" src="notam.js?v=1"></script>
+<script type="module" src="heli.js?v=1"></script>
 </body>
 </html>
