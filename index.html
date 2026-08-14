@@ -152,39 +152,37 @@
     </div>
   </section>
 
-  <section class="grid-2">
-    <div class="card notam-card" id="bulletin-card">
-      <h2><span class="card-icon">📰</span><span data-i18n="bulletinTitle">النشرة الجوية العامة (البحرين)</span></h2>
-      <table class="decoded-table" id="bulletin-table">
+  <section class="card notam-card" id="bulletin-card">
+    <h2><span class="card-icon">📰</span><span data-i18n="bulletinTitle">النشرة الجوية العامة (البحرين)</span></h2>
+    <table class="decoded-table" id="bulletin-table">
+      <tbody></tbody>
+    </table>
+    <p class="hint" id="bulletin-validity" style="margin:10px 0 0"></p>
+  </section>
+
+  <section class="card">
+    <h2><span class="card-icon">📄</span><span data-i18n="rawMetarTitle">تقرير METAR الخام</span></h2>
+    <pre id="raw-metar" class="raw-box">--</pre>
+    <h2 class="mt"><span class="card-icon">📑</span><span data-i18n="rawTafTitle">تقرير TAF الخام</span></h2>
+    <pre id="raw-taf" class="raw-box">--</pre>
+
+    <h2 class="mt"><span class="card-icon">🕘</span><span data-i18n="metarHistoryTitle">سجل METAR</span></h2>
+    <div class="metar-history-scroll">
+      <table class="metar-history-table" id="metar-history-table">
+        <thead>
+          <tr>
+            <th data-i18n="mhTime">الوقت</th>
+            <th data-i18n="mhCode">الحالة</th>
+            <th data-i18n="mhWeather">الطقس</th>
+            <th data-i18n="mhTemp">الحرارة</th>
+            <th data-i18n="mhVisibility">الرؤية</th>
+            <th data-i18n="mhCeiling">السقف</th>
+            <th data-i18n="mhWind">الرياح</th>
+            <th data-i18n="mhRaw">METAR</th>
+          </tr>
+        </thead>
         <tbody></tbody>
       </table>
-      <p class="hint" id="bulletin-validity" style="margin:10px 0 0"></p>
-    </div>
-
-    <div class="card">
-      <h2><span class="card-icon">📄</span><span data-i18n="rawMetarTitle">تقرير METAR الخام</span></h2>
-      <pre id="raw-metar" class="raw-box">--</pre>
-      <h2 class="mt"><span class="card-icon">📑</span><span data-i18n="rawTafTitle">تقرير TAF الخام</span></h2>
-      <pre id="raw-taf" class="raw-box">--</pre>
-
-      <h2 class="mt"><span class="card-icon">🕘</span><span data-i18n="metarHistoryTitle">سجل METAR</span></h2>
-      <div class="metar-history-scroll">
-        <table class="metar-history-table" id="metar-history-table">
-          <thead>
-            <tr>
-              <th data-i18n="mhTime">الوقت</th>
-              <th data-i18n="mhCode">الحالة</th>
-              <th data-i18n="mhWeather">الطقس</th>
-              <th data-i18n="mhTemp">الحرارة</th>
-              <th data-i18n="mhVisibility">الرؤية</th>
-              <th data-i18n="mhCeiling">السقف</th>
-              <th data-i18n="mhWind">الرياح</th>
-              <th data-i18n="mhRaw">METAR</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
     </div>
   </section>
 
@@ -327,8 +325,8 @@
   </a>
 </footer>
 
-<script src="script.js?v=28"></script>
-<script src="navaids.js?v=28"></script>
+<script src="script.js?v=29"></script>
+<script src="navaids.js?v=29"></script>
 <script type="module" src="bulletin.js?v=1"></script>
 </body>
 </html>
