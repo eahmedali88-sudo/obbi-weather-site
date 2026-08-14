@@ -238,6 +238,24 @@ const STR = {
   },
   notamBtn: { ar: "افتح بوابة معلومات الطيران الرسمية للبحرين (AIS)", en: "Open Bahrain's Official AIS Portal" },
 
+  bulletinTitle: { ar: "النشرة الجوية العامة (البحرين)", en: "Public Weather Bulletin (Bahrain)" },
+  bulletinHint: {
+    ar: "نشرة رسمية من إدارة الأرصاد الجوية البحرينية — تُستخرج تلقائياً من نشرة PDF الرسمية وتتحدث كل 5 دقائق.",
+    en: "Official bulletin from Bahrain's Meteorological Directorate — auto-extracted from their official PDF and refreshed every 5 minutes.",
+  },
+  bWeather: { ar: "الطقس", en: "Weather" },
+  bWind: { ar: "الرياح", en: "Wind" },
+  bWarning: { ar: "التحذير", en: "Warning" },
+  bSeaState: { ar: "حالة البحر", en: "Sea State" },
+  bulletinValidFrom: { ar: "سارية من", en: "Valid from" },
+  bulletinValidUntil: { ar: "حتى", en: "until" },
+  bulletinLocal: { ar: "بتوقيت البحرين", en: "Bahrain local time" },
+  bulletinExpired: {
+    ar: "⚠️ انتهت صلاحية هذه النشرة ولم تُصدر إدارة الأرصاد البحرينية نشرة جديدة بعد — القيم المعروضة من آخر نشرة متوفرة.",
+    en: "⚠️ This bulletin's validity window has expired and Bahrain's Met Directorate hasn't published a new one yet — showing the last available bulletin.",
+  },
+  bulletinFetchFailed: { ar: "تعذر جلب النشرة الجوية العامة حالياً.", en: "Could not fetch the public weather bulletin right now." },
+
   heliTitle: { ar: "توقعات المروحيات والمنطقة المحلية", en: "Helicopter Ops & Local Area Forecast" },
   heliHint: {
     ar: "نشرة رسمية من إدارة الأرصاد الجوية البحرينية — رياح وحرارة من السطح حتى FL390، مستوى التجمد، منسوب التروبوبوز، وتحذيرات التجمد لدائرة 50 كم حول مطار البحرين الدولي. تُحدَّث كل 6 ساعات تقريباً — تحقق دائماً من سطر «Valid from / to» المطبوع داخل المستند نفسه لمعرفة الفترة الفعلية.",
@@ -947,6 +965,44 @@ function renderDecodedTable(metar) {
   tbody.innerHTML = rows.map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join("");
 }
 
+/* ---------- Bahrain public weather bulletin ---------- */
+function fmtBulletinTime(iso) {
+  // iso is always "YYYY-MM-DDTHH:MM:00+03:00" from our own proxy — slice
+  // directly instead of going through Date/UTC conversion so the displayed
+  // time matches Bahrain local time exactly as printed in the source PDF.
+  if (!iso) return "--";
+  return `${iso.slice(8, 10)}/${iso.slice(5, 7)} ${iso.slice(11, 16)}`;
+}
+
+function renderBulletin(bulletin) {
+  const card = document.getElementById("bulletin-card");
+  const tbody = document.querySelector("#bulletin-table tbody");
+  const validityEl = document.getElementById("bulletin-validity");
+  if (!card) return;
+
+  if (!bulletin) {
+    card.className = "card notam-card";
+    tbody.innerHTML = "";
+    validityEl.textContent = t("bulletinFetchFailed");
+    return;
+  }
+
+  const rows = [
+    [t("bWeather"), bulletin.weather || "--"],
+    [t("bWind"), bulletin.wind || "--"],
+    [t("bWarning"), bulletin.warning || "--"],
+    [t("bSeaState"), bulletin.seaState || "--"],
+  ];
+  tbody.innerHTML = rows.map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join("");
+
+  const expired = bulletin.validUntil && Date.now() > new Date(bulletin.validUntil).getTime();
+  card.className = "card notam-card" + (expired ? " sigmet-active" : "");
+
+  validityEl.innerHTML =
+    `${t("bulletinValidFrom")} ${fmtBulletinTime(bulletin.validFrom)} ${t("bulletinValidUntil")} ${fmtBulletinTime(bulletin.validUntil)} (${t("bulletinLocal")})` +
+    (expired ? `<br>${t("bulletinExpired")}` : "");
+}
+
 /* ---------- TAF timeline ---------- */
 function renderTaf(taf, tzOffset) {
   const tbody = document.querySelector("#taf-table tbody");
@@ -1051,6 +1107,7 @@ function renderAll() {
   renderRunwaySpecs(airport);
   renderDecodedTable(metar);
   renderDaylight(airport);
+  renderBulletin(state.bulletin);
 
   document.getElementById("raw-metar").textContent = metar.rawOb || "N/A";
   document.getElementById("raw-taf").textContent = (taf && taf.rawTAF) || "N/A";
@@ -1103,12 +1160,13 @@ async function loadWeather(icaoRaw) {
   banner.textContent = `${t("fetching")} ${icao}...`;
 
   try {
-    const [metarArr, tafArr, rainProb, metarHistory, sigmets] = await Promise.all([
+    const [metarArr, tafArr, rainProb, metarHistory, sigmets, bulletin] = await Promise.all([
       fetchJson(`/proxy/metar?ids=${icao}`),
       fetchJson(`/proxy/taf?ids=${icao}`),
       airport.lat !== null ? fetchRainProbability(airport.lat, airport.lon) : Promise.resolve(null),
       fetchJson(`/proxy/metar?ids=${icao}&hours=24`).catch(() => null),
       airport.fir ? fetchJson(`/proxy/isigmet`).catch(() => null) : Promise.resolve(null),
+      fetchJson(`/proxy/bulletin`).catch(() => null),
     ]);
 
     if (!metarArr || metarArr.length === 0) {
@@ -1120,7 +1178,7 @@ async function loadWeather(icaoRaw) {
     const metar = metarArr[0];
     const taf = tafArr && tafArr.length ? tafArr[0] : null;
 
-    state = { icao, airport, metar, taf, rainProb, metarHistory: metarHistory || [metar], sigmets, activeRunway: 0 };
+    state = { icao, airport, metar, taf, rainProb, metarHistory: metarHistory || [metar], sigmets, bulletin, activeRunway: 0 };
     renderAll();
 
     banner.className = "status-banner ok";
