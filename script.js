@@ -233,10 +233,21 @@ const STR = {
 
   notamTitle: { ar: "إشعارات الطيارين (NOTAM)", en: "Notices to Airmen (NOTAM)" },
   notamHint: {
-    ar: "لا يمكن عرض النوتامات تلقائياً هنا لأنها بيانات رسمية مقيدة ولا تتوفر عبر واجهة برمجية مفتوحة وموثوقة. اضغط الزر أدناه للوصول مباشرة إلى مصدر الطيران الرسمي لمملكة البحرين (النشرة اليومية PIB والنوتامات).",
-    en: "NOTAMs can't be shown automatically here — they're official restricted data with no reliable open API. Use the button below to go straight to Bahrain's official aeronautical information source (Daily PIB and NOTAMs).",
+    ar: "مستخرجة تلقائياً من نشرة PIB الرسمية للبحرين — هذه النشرة ليست بالضرورة محدثة لحظياً، والموقع الرسمي لا يضمن تحديثها يومياً كما هو معلن. تحقق دائماً من البوابة الرسمية قبل الطيران الفعلي.",
+    en: "Auto-extracted from Bahrain's official PIB bulletin — this bulletin isn't guaranteed to refresh in real time despite being labeled \"Daily\" on the official site. Always verify with the official portal before actual flight.",
   },
   notamBtn: { ar: "افتح بوابة معلومات الطيران الرسمية للبحرين (AIS)", en: "Open Bahrain's Official AIS Portal" },
+  notamFresh: { ar: "آخر إصدار للنشرة", en: "Bulletin last issued" },
+  notamNone: { ar: "لا توجد نوتامات نشطة ضمن هذه النشرة.", en: "No active NOTAMs in this bulletin." },
+  notamFetchFailed: { ar: "تعذر جلب نشرة النوتام حالياً.", en: "Could not fetch the NOTAM bulletin right now." },
+  notamCatWARN: { ar: "تحذير", en: "Warning" },
+  notamCatINFO: { ar: "معلومة", en: "Info" },
+  notamCatAGA: { ar: "مرافق أرضية", en: "Ground Aids" },
+  notamCatATM: { ar: "إدارة حركة جوية", en: "Air Traffic" },
+  notamScopeFIR: { ar: "منطقة معلومات الطيران", en: "FIR-wide" },
+  notamScopeDEP: { ar: "المغادرة", en: "Departure" },
+  notamScopeDEST: { ar: "الوجهة", en: "Destination" },
+  notamScopeINTM: { ar: "وسيط", en: "Intermediate" },
 
   bulletinTitle: { ar: "النشرة الجوية العامة (البحرين)", en: "Public Weather Bulletin (Bahrain)" },
   bWeather: { ar: "الطقس", en: "Weather" },

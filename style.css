@@ -353,6 +353,43 @@ a { color: var(--azure); }
 .sigmet-item-head { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
 .sigmet-hazard { font-weight: 800; color: #f87171; }
 .sigmet-time { font-size: 0.8rem; color: var(--text-dim); direction: ltr; }
+.notam-freshness {
+  border-radius: 10px;
+  padding: 9px 14px;
+  font-size: 0.85rem;
+  margin-bottom: 12px;
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  background: rgba(34, 197, 94, 0.08);
+  color: #86efac;
+}
+.notam-freshness.stale {
+  border-color: rgba(245, 158, 11, 0.45);
+  background: rgba(245, 158, 11, 0.08);
+  color: #fbbf24;
+}
+.notam-freshness.very-stale {
+  border-color: rgba(239, 68, 68, 0.5);
+  background: rgba(239, 68, 68, 0.1);
+  color: #fca5a5;
+}
+.notam-item {
+  background: rgba(242, 193, 78, 0.06);
+  border: 1px solid rgba(242, 193, 78, 0.25);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+}
+.notam-item:last-child { margin-bottom: 0; }
+.notam-item.cat-warn {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+.notam-item-head { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+.notam-scope { font-weight: 800; color: var(--gold); }
+.notam-item.cat-warn .notam-scope { color: #f87171; }
+.notam-id { font-size: 0.78rem; color: var(--text-dim); direction: ltr; }
+.notam-time { font-size: 0.78rem; color: var(--text-dim); direction: ltr; }
+.notam-text { margin-top: 6px; }
 .notam-btn {
   display: inline-flex;
   align-items: center;

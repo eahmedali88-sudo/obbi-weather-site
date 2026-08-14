@@ -224,7 +224,9 @@
 
   <section class="card notam-card" id="notam-card">
     <h2><span class="card-icon">📢</span><span data-i18n="notamTitle">إشعارات الطيارين (NOTAM)</span></h2>
-    <p class="hint" data-i18n="notamHint">لا يمكن عرض النوتامات تلقائياً هنا لأنها بيانات رسمية مقيدة ولا تتوفر عبر واجهة برمجية مفتوحة وموثوقة. اضغط الزر أدناه للوصول مباشرة إلى مصدر الطيران الرسمي لمملكة البحرين (النشرة اليومية PIB والنوتامات).</p>
+    <p class="hint" data-i18n="notamHint">مستخرجة تلقائياً من نشرة PIB الرسمية للبحرين — هذه النشرة ليست بالضرورة محدثة لحظياً، والموقع الرسمي لا يضمن تحديثها يومياً كما هو معلن. تحقق دائماً من البوابة الرسمية قبل الطيران الفعلي.</p>
+    <div id="notam-freshness" class="notam-freshness"></div>
+    <div id="notam-list"></div>
     <a class="notam-btn" href="https://aim.mtt.gov.bh" target="_blank" rel="noopener">
       <span data-i18n="notamBtn">افتح بوابة معلومات الطيران الرسمية للبحرين (AIS)</span> ↗
     </a>
@@ -325,8 +327,9 @@
   </a>
 </footer>
 
-<script src="script.js?v=29"></script>
-<script src="navaids.js?v=29"></script>
+<script src="script.js?v=30"></script>
+<script src="navaids.js?v=30"></script>
 <script type="module" src="bulletin.js?v=1"></script>
+<script type="module" src="notam.js?v=1"></script>
 </body>
 </html>

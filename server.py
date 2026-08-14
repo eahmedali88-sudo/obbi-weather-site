@@ -23,6 +23,7 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 UPSTREAM = "https://aviationweather.gov/api/data"
 ICAO_RE = re.compile(r"^[A-Za-z0-9,]{1,40}$")
 BULLETIN_PDF_URL = "https://www.bahrainweather.gov.bh/files/forecasts/BMD_PublicWeatherForecast.pdf"
+NOTAM_PDF_URL = "https://aim.mtt.gov.bh/sites/default/files/pdf_download/ePib%20scheduler.pdf"
 # Hosting platforms (Render, Railway, Fly, etc.) assign the port via $PORT.
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else int(os.environ.get("PORT", 8765))
 
@@ -36,7 +37,11 @@ class Handler(SimpleHTTPRequestHandler):
             return
 
         if parsed.path == "/proxy/bulletin":
-            self.handle_bulletin()
+            self.handle_pdf_proxy(BULLETIN_PDF_URL)
+            return
+
+        if parsed.path == "/proxy/notam":
+            self.handle_pdf_proxy(NOTAM_PDF_URL)
             return
 
         return super().do_GET()
@@ -97,9 +102,9 @@ class Handler(SimpleHTTPRequestHandler):
                 last_error = str(e)
         self.send_json_error(502, last_error or "unknown upstream failure")
 
-    def handle_bulletin(self):
+    def handle_pdf_proxy(self, pdf_url):
         try:
-            req = urllib.request.Request(BULLETIN_PDF_URL, headers={"User-Agent": "Mozilla/5.0"})
+            req = urllib.request.Request(pdf_url, headers={"User-Agent": "Mozilla/5.0"})
             with urllib.request.urlopen(req, timeout=10) as resp:
                 pdf_bytes = resp.read()
         except Exception as e:  # noqa: BLE001
