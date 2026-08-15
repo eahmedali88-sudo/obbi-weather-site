@@ -712,6 +712,13 @@ function renderCompass(wdir, wspd, wgst) {
   } else {
     needle.style.display = "none";
   }
+  if (typeof wspd === "number" && wspd > 0) {
+    const dur = 3.2 - (Math.min(wspd, 40) / 40) * 2.7;
+    needle.style.setProperty("--wind-flow-dur", `${dur.toFixed(2)}s`);
+    needle.classList.remove("wind-calm");
+  } else {
+    needle.classList.add("wind-calm");
+  }
   document.getElementById("wind-dir").textContent = typeof wdir === "number" ? `${padDir(wdir)}°` : "VRB";
   document.getElementById("wind-spd").textContent = wspd !== null && wspd !== undefined ? `${wspd} kt` : "--";
   document.getElementById("wind-gust").textContent = wgst ? `${wgst} kt` : t("none");

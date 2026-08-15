@@ -487,8 +487,23 @@ a { color: var(--azure); }
 .compass-heading-num { fill: var(--text-dim); font-size: 11px; font-weight: 600; font-family: var(--font-mono); }
 
 .needle-sightline { stroke: var(--border-strong); stroke-width: 1; }
-.needle-chevron { fill: var(--gold); stroke: none; }
 #wind-needle { filter: none; }
+
+.wind-chevron {
+  opacity: 0.2;
+  animation: windChevronPulse var(--wind-flow-dur, 2s) ease-in-out infinite;
+  animation-delay: calc(var(--wind-flow-dur, 2s) / -5 * var(--i, 0));
+}
+.wind-chevron-head { fill: var(--gold); stroke: none; }
+.wind-chevron-trail { fill: none; stroke: var(--gold); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+#wind-needle.wind-calm .wind-chevron { animation: none; opacity: 1; }
+
+@keyframes windChevronPulse {
+  0% { opacity: 0.2; }
+  12% { opacity: 1; }
+  30% { opacity: 0.2; }
+  100% { opacity: 0.2; }
+}
 
 .runway-strip { fill: var(--bg-2); stroke: var(--azure); stroke-width: 1.2; }
 .runway-edge { stroke: var(--azure); stroke-width: 1; opacity: 0.5; }

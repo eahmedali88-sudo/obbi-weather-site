@@ -7,7 +7,7 @@
 <title>طقس الطيران | مطار البحرين الدولي OBBI</title>
 <link rel="icon" type="image/png" href="favicon.png?v=1">
 <link rel="apple-touch-icon" href="favicon.png?v=1">
-<link rel="stylesheet" href="style.css?v=24">
+<link rel="stylesheet" href="style.css?v=25">
 <script>(function(){var s=localStorage.getItem("obbi_theme");if(s)document.documentElement.setAttribute("data-theme",s);})();</script>
 </head>
 <body>
@@ -244,7 +244,13 @@
           <g id="runway-mark"></g>
           <g id="wind-needle">
             <line x1="150" y1="20" x2="150" y2="280" class="needle-sightline"/>
-            <path d="M150,85 L131,121 L150,111 L169,121 Z" class="needle-chevron"/>
+            <g class="wind-flow">
+              <path d="M150,96 L138,118 L150,110 L162,118 Z" class="wind-chevron wind-chevron-head" style="--i:0"/>
+              <path d="M141,140 L150,128 L159,140" class="wind-chevron wind-chevron-trail" style="--i:1"/>
+              <path d="M141,162 L150,150 L159,162" class="wind-chevron wind-chevron-trail" style="--i:2"/>
+              <path d="M141,184 L150,172 L159,184" class="wind-chevron wind-chevron-trail" style="--i:3"/>
+              <path d="M141,206 L150,194 L159,206" class="wind-chevron wind-chevron-trail" style="--i:4"/>
+            </g>
           </g>
         </svg>
         <div class="compass-readout">
@@ -468,7 +474,7 @@
   </a>
 </footer>
 
-<script src="script.js?v=33"></script>
+<script src="script.js?v=34"></script>
 <script src="navaids.js?v=33"></script>
 <script type="module" src="bulletin.js?v=6"></script>
 <script type="module" src="notam.js?v=5"></script>
