@@ -7,7 +7,7 @@
 <title>طقس الطيران | مطار البحرين الدولي OBBI</title>
 <link rel="icon" type="image/png" href="favicon.png?v=1">
 <link rel="apple-touch-icon" href="favicon.png?v=1">
-<link rel="stylesheet" href="style.css?v=29">
+<link rel="stylesheet" href="style.css?v=30">
 <script>(function(){var s=localStorage.getItem("obbi_theme");if(s)document.documentElement.setAttribute("data-theme",s);})();</script>
 </head>
 <body>
@@ -188,6 +188,9 @@
         <input id="icao-input" type="text" maxlength="4" placeholder="OBBI" value="OBBI" spellcheck="false">
         <button type="submit" data-i18n="update">تحديث</button>
       </form>
+      <button id="metar-speak-btn" class="metar-speak-btn" type="button">
+        <svg class="icon"><use href="#i-speaker"/></svg>
+      </button>
       <button id="theme-toggle" class="theme-toggle" type="button" title="Switch theme" aria-label="Switch theme"></button>
       <button id="lang-toggle" class="lang-toggle" type="button" title="Switch language">EN</button>
     </div>
@@ -316,12 +319,7 @@
   </section>
 
   <section class="card">
-    <h2>
-      <span class="card-icon"><svg class="icon"><use href="#i-doc"/></svg></span><span data-i18n="rawMetarTitle">تقرير METAR الخام</span>
-      <button id="metar-speak-btn" class="metar-speak-btn" type="button">
-        <svg class="icon"><use href="#i-speaker"/></svg>
-      </button>
-    </h2>
+    <h2><span class="card-icon"><svg class="icon"><use href="#i-doc"/></svg></span><span data-i18n="rawMetarTitle">تقرير METAR الخام</span></h2>
     <pre id="raw-metar" class="raw-box">--</pre>
     <h2 class="mt"><span class="card-icon"><svg class="icon"><use href="#i-doc-stack"/></svg></span><span data-i18n="rawTafTitle">تقرير TAF الخام</span></h2>
     <pre id="raw-taf" class="raw-box">--</pre>
