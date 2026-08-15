@@ -314,6 +314,10 @@ const STR = {
   },
   sigmetNone: { ar: "لا توجد تحذيرات SIGMET نشطة حالياً لهذه المنطقة.", en: "No active SIGMETs currently for this region." },
   sigmetUnavailable: { ar: "بيانات SIGMET غير مرتبطة بهذا المطار حالياً.", en: "SIGMET data isn't mapped to this airport yet." },
+  bahrainOnlyNote: {
+    ar: "هذا القسم خاص ببيانات البحرين (مطار OBBI) فقط، ولا يتوفر للمطارات الأخرى التي تبحث عنها.",
+    en: "This section is Bahrain (OBBI)-specific data only and isn't available for other airports you search.",
+  },
   sigmetValid: { ar: "صالح", en: "Valid" },
   sigmetAlt: { ar: "الارتفاع", en: "Altitude" },
   sigmetSurface: { ar: "من السطح", en: "Surface" },
@@ -1177,8 +1181,16 @@ async function fetchRainProbability(lat, lon) {
   }
 }
 
+function updateBahrainOnlyCards(icao) {
+  const isBahrain = icao === "OBBI";
+  ["bulletin-card", "notam-card", "heli-card"].forEach((id) => {
+    document.getElementById(id).classList.toggle("bahrain-only-hidden", !isBahrain);
+  });
+}
+
 async function loadWeather(icaoRaw) {
   const icao = (icaoRaw || DEFAULT_ICAO).trim().toUpperCase();
+  updateBahrainOnlyCards(icao);
   const airport = getAirport(icao);
   const banner = document.getElementById("status-banner");
   banner.className = "status-banner";

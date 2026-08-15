@@ -409,6 +409,10 @@ a { color: var(--azure); }
 
 .notam-card { border-color: rgba(245, 166, 35, 0.35); }
 
+.icao-mismatch-note { display: none; }
+.bahrain-only-hidden > *:not(h2):not(.icao-mismatch-note) { display: none; }
+.bahrain-only-hidden .icao-mismatch-note { display: block; }
+
 .sigmet-clear { border-color: rgba(52, 209, 124, 0.35); }
 .sigmet-active { border-color: rgba(239, 76, 84, 0.5); }
 .sigmet-item {
