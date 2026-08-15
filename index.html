@@ -78,29 +78,6 @@
     <!-- filled by JS -->
   </section>
 
-  <section class="card" id="sigmet-card">
-    <h2><span class="card-icon">⚠️</span><span data-i18n="sigmetTitle">تحذيرات SIGMET — منطقة معلومات الطيران</span></h2>
-    <p class="hint" data-i18n="sigmetHint">تحذيرات جوية رسمية من مصدر NOAA — لا تُغني عن الإحاطة الرسمية قبل الرحلة.</p>
-    <div id="sigmet-body"></div>
-  </section>
-
-  <section class="card" id="da-card">
-    <h2><span class="card-icon">🌡️</span><span data-i18n="daTitle">ارتفاع الكثافة (Density Altitude)</span></h2>
-    <p class="hint" data-i18n="daHint">محسوب من درجة الحرارة والضغط الحاليين وارتفاع المطار — يؤثر مباشرة على أداء الإقلاع والتسلق.</p>
-    <div class="da-wrap">
-      <div class="da-main">
-        <span class="da-label" data-i18n="daLabel">ارتفاع الكثافة</span>
-        <span class="da-value" id="da-value">-- ft</span>
-      </div>
-      <div class="da-secondary">
-        <div><span class="ro-label" data-i18n="daFieldElev">ارتفاع المطار</span><span id="da-elev" class="ro-value">-- ft</span></div>
-        <div><span class="ro-label" data-i18n="daPressureAlt">الارتفاع الضغطي</span><span id="da-pa" class="ro-value">-- ft</span></div>
-        <div><span class="ro-label" data-i18n="daDiff">الفرق عن الارتفاع الفعلي</span><span id="da-diff" class="ro-value">-- ft</span></div>
-      </div>
-    </div>
-    <p class="hint" id="da-note" style="margin-top:12px; margin-bottom:0"></p>
-  </section>
-
   <section class="grid-2">
     <div class="card compass-card">
       <h2><span class="card-icon">🧭</span><span data-i18n="windTitle">اتجاه وسرعة الرياح</span></h2>
@@ -158,6 +135,29 @@
       <tbody></tbody>
     </table>
     <p class="hint" id="bulletin-validity" style="margin:10px 0 0"></p>
+  </section>
+
+  <section class="card" id="sigmet-card">
+    <h2><span class="card-icon">⚠️</span><span data-i18n="sigmetTitle">تحذيرات SIGMET — منطقة معلومات الطيران</span></h2>
+    <p class="hint" data-i18n="sigmetHint">تحذيرات جوية رسمية من مصدر NOAA — لا تُغني عن الإحاطة الرسمية قبل الرحلة.</p>
+    <div id="sigmet-body"></div>
+  </section>
+
+  <section class="card" id="da-card">
+    <h2><span class="card-icon">🌡️</span><span data-i18n="daTitle">ارتفاع الكثافة (Density Altitude)</span></h2>
+    <p class="hint" data-i18n="daHint">محسوب من درجة الحرارة والضغط الحاليين وارتفاع المطار — يؤثر مباشرة على أداء الإقلاع والتسلق.</p>
+    <div class="da-wrap">
+      <div class="da-main">
+        <span class="da-label" data-i18n="daLabel">ارتفاع الكثافة</span>
+        <span class="da-value" id="da-value">-- ft</span>
+      </div>
+      <div class="da-secondary">
+        <div><span class="ro-label" data-i18n="daFieldElev">ارتفاع المطار</span><span id="da-elev" class="ro-value">-- ft</span></div>
+        <div><span class="ro-label" data-i18n="daPressureAlt">الارتفاع الضغطي</span><span id="da-pa" class="ro-value">-- ft</span></div>
+        <div><span class="ro-label" data-i18n="daDiff">الفرق عن الارتفاع الفعلي</span><span id="da-diff" class="ro-value">-- ft</span></div>
+      </div>
+    </div>
+    <p class="hint" id="da-note" style="margin-top:12px; margin-bottom:0"></p>
   </section>
 
   <section class="card">
@@ -222,6 +222,13 @@
     </div>
   </section>
 
+  <section class="card" id="decoded-card">
+    <h2><span class="card-icon">📋</span><span data-i18n="decodedTitle">تفاصيل الأرصاد</span></h2>
+    <table class="decoded-table" id="decoded-table">
+      <tbody></tbody>
+    </table>
+  </section>
+
   <section class="card notam-card" id="notam-card">
     <h2><span class="card-icon">📢</span><span data-i18n="notamTitle">إشعارات الطيارين (NOTAM)</span></h2>
     <p class="hint" data-i18n="notamHint">مستخرجة تلقائياً من نشرة PIB الرسمية للبحرين — هذه النشرة ليست بالضرورة محدثة لحظياً، والموقع الرسمي لا يضمن تحديثها يومياً كما هو معلن. تحقق دائماً من البوابة الرسمية قبل الطيران الفعلي.</p>
@@ -270,13 +277,6 @@
     <h2><span class="card-icon">📻</span><span data-i18n="commsTitle">اتصالات مطار البحرين الدولي</span></h2>
     <p class="hint" data-i18n="commsHint">ترددات مرجعية — تحقق دائماً من آخر إصدار لمنشور معلومات الطيران (AIP) والنوتام قبل الاستخدام الفعلي.</p>
     <table class="decoded-table" id="comms-table">
-      <tbody></tbody>
-    </table>
-  </section>
-
-  <section class="card" id="decoded-card">
-    <h2><span class="card-icon">📋</span><span data-i18n="decodedTitle">تفاصيل الأرصاد</span></h2>
-    <table class="decoded-table" id="decoded-table">
       <tbody></tbody>
     </table>
   </section>
@@ -330,8 +330,8 @@
   </a>
 </footer>
 
-<script src="script.js?v=31"></script>
-<script src="navaids.js?v=31"></script>
+<script src="script.js?v=32"></script>
+<script src="navaids.js?v=32"></script>
 <script type="module" src="bulletin.js?v=6"></script>
 <script type="module" src="notam.js?v=5"></script>
 <script type="module" src="heli.js?v=5"></script>

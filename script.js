@@ -953,6 +953,8 @@ function renderQuickStats(metar) {
     { icon: "💦", label: t("statHumidity"), value: rh !== null ? `${rh}%` : "--" },
     { icon: "🧭", label: t("statWind"), value: fmtWind(metar.wdir, metar.wspd, metar.wgst) },
     { icon: "👁️", label: t("statVisibility"), value: fmtVis(metar.visib), unitKey: "vis", unitLabel: visUnit === "SM" ? "km" : "SM" },
+    { icon: "🌦️", label: t("dWeather"), value: metar.wxString || t("noWx") },
+    { icon: "☁️", label: t("dClouds"), value: (metar.clouds || []).map((c) => `${c.cover}${c.base ? " " + c.base + "ft" : ""}`).join(" / ") || t("clearSky") },
     { icon: "🌧️", label: t("statRain"), value: state && state.rainProb !== null && state.rainProb !== undefined ? `${state.rainProb}%` : "--" },
     { icon: "📊", label: t("statQnh"), value: metar.altim !== undefined && metar.altim !== null ? `${fmtNum(metar.altim, 1)} hPa` : "--" },
     { icon: "🕐", label: t("statAge"), value: ageMin !== null ? `${ageMin} ${t("minutesAgo")}` : "--" },
