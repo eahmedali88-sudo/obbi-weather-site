@@ -375,6 +375,12 @@ a { color: var(--azure); }
 .cat-IFR .stat-value { background: rgba(239, 76, 84, 0.14); color: var(--ifr); border: 1px solid rgba(239, 76, 84, 0.4); }
 .cat-LIFR .stat-value { background: rgba(201, 98, 224, 0.14); color: var(--lifr); border: 1px solid rgba(201, 98, 224, 0.4); }
 
+.aqi-good .stat-value { background: rgba(52, 209, 124, 0.14); color: var(--vfr); border: 1px solid rgba(52, 209, 124, 0.4); }
+.aqi-moderate .stat-value { background: rgba(245, 166, 35, 0.14); color: var(--gold); border: 1px solid rgba(245, 166, 35, 0.4); }
+.aqi-sensitive .stat-value { background: rgba(240, 185, 85, 0.16); color: var(--warn-text); border: 1px solid rgba(240, 185, 85, 0.45); }
+.aqi-unhealthy .stat-value { background: rgba(239, 76, 84, 0.14); color: var(--ifr); border: 1px solid rgba(239, 76, 84, 0.4); }
+.aqi-very-unhealthy .stat-value, .aqi-hazardous .stat-value { background: rgba(201, 98, 224, 0.14); color: var(--lifr); border: 1px solid rgba(201, 98, 224, 0.4); }
+
 /* Grid layout */
 .grid-2 {
   display: grid;

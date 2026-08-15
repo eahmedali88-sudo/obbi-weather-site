@@ -120,6 +120,13 @@ const STR = {
   statWind: { ar: "الرياح", en: "Wind" },
   statVisibility: { ar: "الرؤية", en: "Visibility" },
   statRain: { ar: "فرصة هطول الأمطار", en: "Chance of Rain" },
+  statAqi: { ar: "جودة الهواء", en: "Air Quality" },
+  aqiGood: { ar: "جيدة", en: "Good" },
+  aqiModerate: { ar: "متوسطة", en: "Moderate" },
+  aqiSensitive: { ar: "غير صحية للفئات الحساسة", en: "Unhealthy for Sensitive Groups" },
+  aqiUnhealthy: { ar: "غير صحية", en: "Unhealthy" },
+  aqiVeryUnhealthy: { ar: "غير صحية جداً", en: "Very Unhealthy" },
+  aqiHazardous: { ar: "خطرة", en: "Hazardous" },
   switchUnit: { ar: "اضغط لتغيير الوحدة", en: "Tap to switch unit" },
   statQnh: { ar: "الضغط QNH", en: "QNH" },
   statAge: { ar: "عمر البيانات", en: "Data Age" },
@@ -982,11 +989,24 @@ function renderSigmets(airport, sigmets) {
     .join("");
 }
 
+/* ---------- Air quality ---------- */
+function aqiCategory(aqi) {
+  if (aqi === null || aqi === undefined) return null;
+  if (aqi <= 50) return { cls: "aqi-good", label: t("aqiGood") };
+  if (aqi <= 100) return { cls: "aqi-moderate", label: t("aqiModerate") };
+  if (aqi <= 150) return { cls: "aqi-sensitive", label: t("aqiSensitive") };
+  if (aqi <= 200) return { cls: "aqi-unhealthy", label: t("aqiUnhealthy") };
+  if (aqi <= 300) return { cls: "aqi-very-unhealthy", label: t("aqiVeryUnhealthy") };
+  return { cls: "aqi-hazardous", label: t("aqiHazardous") };
+}
+
 /* ---------- Quick stats ---------- */
 function renderQuickStats(metar) {
   const cat = metar.fltCat || computeFlightCategory(parseVisib(metar.visib), parseCeilingFt(metar.clouds));
   const rh = relativeHumidity(metar.temp, metar.dewp);
   const ageMin = metar.obsTime ? Math.round((Date.now() / 1000 - metar.obsTime) / 60) : null;
+  const aqi = state ? state.aqi : null;
+  const aqiCat = aqiCategory(aqi);
 
   const stats = [
     { icon: "i-status", label: t("statCategory"), value: cat, cls: `cat-${cat}`, badge: true },
@@ -998,6 +1018,13 @@ function renderQuickStats(metar) {
     { icon: "i-cloud-sun", label: t("dWeather"), value: metar.wxString || t("noWx") },
     { icon: "i-cloud", label: t("dClouds"), value: (metar.clouds || []).map((c) => `${c.cover}${c.base ? " " + c.base + "ft" : ""}`).join(" / ") || t("clearSky") },
     { icon: "i-cloud-rain", label: t("statRain"), value: state && state.rainProb !== null && state.rainProb !== undefined ? `${state.rainProb}%` : "--" },
+    {
+      icon: "i-leaf",
+      label: aqiCat ? `${t("statAqi")} · ${aqiCat.label}` : t("statAqi"),
+      value: aqi !== null && aqi !== undefined ? String(aqi) : "--",
+      cls: aqiCat ? aqiCat.cls : "",
+      badge: true,
+    },
     { icon: "i-gauge", label: t("statQnh"), value: metar.altim !== undefined && metar.altim !== null ? `${fmtNum(metar.altim, 1)} hPa` : "--" },
     { icon: "i-clock", label: t("statAge"), value: ageMin !== null ? `${ageMin} ${t("minutesAgo")}` : "--" },
   ];
@@ -1184,6 +1211,18 @@ async function fetchRainProbability(lat, lon) {
   }
 }
 
+/* Real-time US AQI (Open-Meteo Air Quality, free, CORS-enabled — no proxy needed). */
+async function fetchAirQuality(lat, lon) {
+  try {
+    const url = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=us_aqi&timezone=UTC`;
+    const data = await fetchJsonOnce(url);
+    return data.current && typeof data.current.us_aqi === "number" ? data.current.us_aqi : null;
+  } catch (err) {
+    console.error("Failed to fetch air quality", err);
+    return null;
+  }
+}
+
 function updateBahrainOnlyCards(icao) {
   const isBahrain = icao === "OBBI";
   ["bulletin-card", "notam-card", "heli-card", "comms-card", "navaids-card"].forEach((id) => {
@@ -1201,12 +1240,13 @@ async function loadWeather(icaoRaw) {
   banner.textContent = `${t("fetching")} ${icao}...`;
 
   try {
-    const [metarArr, tafArr, rainProb, metarHistory, sigmets] = await Promise.all([
+    const [metarArr, tafArr, rainProb, metarHistory, sigmets, aqi] = await Promise.all([
       fetchJson(`/proxy/metar?ids=${icao}`),
       fetchJson(`/proxy/taf?ids=${icao}`),
       airport.lat !== null ? fetchRainProbability(airport.lat, airport.lon) : Promise.resolve(null),
       fetchJson(`/proxy/metar?ids=${icao}&hours=24`).catch(() => null),
       airport.fir ? fetchJson(`/proxy/isigmet`).catch(() => null) : Promise.resolve(null),
+      airport.lat !== null ? fetchAirQuality(airport.lat, airport.lon) : Promise.resolve(null),
     ]);
 
     if (!metarArr || metarArr.length === 0) {
@@ -1218,7 +1258,7 @@ async function loadWeather(icaoRaw) {
     const metar = metarArr[0];
     const taf = tafArr && tafArr.length ? tafArr[0] : null;
 
-    state = { icao, airport, metar, taf, rainProb, metarHistory: metarHistory || [metar], sigmets, activeRunway: 0 };
+    state = { icao, airport, metar, taf, rainProb, metarHistory: metarHistory || [metar], sigmets, aqi, activeRunway: 0 };
     renderAll();
 
     banner.className = "status-banner ok";
@@ -1228,7 +1268,7 @@ async function loadWeather(icaoRaw) {
   } catch (err) {
     if (!state && MANUAL_FALLBACK[icao]) {
       const metar = MANUAL_FALLBACK[icao];
-      state = { icao, airport, metar, taf: null, rainProb: null, metarHistory: [metar], sigmets: null, activeRunway: 0 };
+      state = { icao, airport, metar, taf: null, rainProb: null, metarHistory: [metar], sigmets: null, aqi: null, activeRunway: 0 };
       renderAll();
       banner.className = "status-banner warn";
       banner.textContent = `⚠️ ${t("fallbackNotice")}`;
