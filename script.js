@@ -1186,7 +1186,7 @@ async function fetchRainProbability(lat, lon) {
 
 function updateBahrainOnlyCards(icao) {
   const isBahrain = icao === "OBBI";
-  ["bulletin-card", "notam-card", "heli-card"].forEach((id) => {
+  ["bulletin-card", "notam-card", "heli-card", "comms-card", "navaids-card"].forEach((id) => {
     document.getElementById(id).classList.toggle("bahrain-only-hidden", !isBahrain);
   });
 }

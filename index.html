@@ -7,7 +7,7 @@
 <title>طقس الطيران | مطار البحرين الدولي OBBI</title>
 <link rel="icon" type="image/png" href="favicon.png?v=1">
 <link rel="apple-touch-icon" href="favicon.png?v=1">
-<link rel="stylesheet" href="style.css?v=30">
+<link rel="stylesheet" href="style.css?v=31">
 <script>(function(){var s=localStorage.getItem("obbi_theme");if(s)document.documentElement.setAttribute("data-theme",s);})();</script>
 </head>
 <body>
@@ -435,6 +435,7 @@
 
   <section class="card" id="comms-card">
     <h2><span class="card-icon"><svg class="icon"><use href="#i-radio"/></svg></span><span data-i18n="commsTitle">اتصالات مطار البحرين الدولي</span></h2>
+    <p class="hint icao-mismatch-note" data-i18n="bahrainOnlyNote"></p>
     <p class="hint" data-i18n="commsHint">ترددات مرجعية — تحقق دائماً من آخر إصدار لمنشور معلومات الطيران (AIP) والنوتام قبل الاستخدام الفعلي.</p>
     <table class="decoded-table" id="comms-table">
       <tbody></tbody>
@@ -443,6 +444,7 @@
 
   <section class="card" id="navaids-card">
     <h2><span class="card-icon"><svg class="icon"><use href="#i-satellite"/></svg></span><span data-i18n="navaidsTitle">الوسائل الملاحية القريبة — مطار البحرين الدولي (OBBI)</span></h2>
+    <p class="hint icao-mismatch-note" data-i18n="bahrainOnlyNote"></p>
     <p class="hint" data-i18n="navaidsHint">مواقع وترددات حقيقية (بيانات مفتوحة من OurAirports)، مع المدى والاتجاه المحسوبين فلكياً من مركز مطار البحرين — لأغراض مرجعية فقط وليست مخططات ملاحة رسمية.</p>
 
     <div class="navaid-tables">
@@ -490,7 +492,7 @@
   </a>
 </footer>
 
-<script src="script.js?v=36"></script>
+<script src="script.js?v=37"></script>
 <script src="navaids.js?v=33"></script>
 <script type="module" src="bulletin.js?v=6"></script>
 <script type="module" src="notam.js?v=5"></script>
