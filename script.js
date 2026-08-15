@@ -82,6 +82,9 @@ const STR = {
   crosswindTitle: { ar: "الرياح الجانبية والأمامية للمدرج", en: "Runway Crosswind / Headwind" },
   crosswindHint: { ar: "القيم تقديرية لأغراض المعلومات فقط — لا تُستخدم للتخطيط الفعلي.", en: "Estimated values for information only — not for operational flight planning." },
   rawMetarTitle: { ar: "تقرير METAR الخام", en: "Raw METAR" },
+  metarSpeakTitle: { ar: "استمع للتقرير مقروءاً بالإنجليزية", en: "Listen to the report read aloud (English)" },
+  metarSpeakStop: { ar: "إيقاف القراءة", en: "Stop reading" },
+  metarSpeakUnsupported: { ar: "المتصفح لا يدعم القراءة الصوتية", en: "Your browser doesn't support text-to-speech" },
   rawTafTitle: { ar: "تقرير TAF الخام", en: "Raw TAF" },
   metarHistoryTitle: { ar: "سجل METAR", en: "METAR History" },
   mhTime: { ar: "الوقت", en: "Time" },
@@ -1310,6 +1313,166 @@ document.getElementById("theme-toggle").addEventListener("click", () => {
 });
 
 applyTheme(effectiveTheme());
+
+/* ---------- METAR read-aloud (English aviation phraseology, Web Speech API) ---------- */
+function ordinal(n) {
+  const suffixes = ["th", "st", "nd", "rd"];
+  const v = n % 100;
+  return n + (suffixes[(v - 20) % 10] || suffixes[v] || suffixes[0]);
+}
+
+const WX_INTENSITY_SPEECH = { "-": "light", "+": "heavy" };
+const WX_DESC_SPEECH = {
+  MI: "shallow", BC: "patches of", PR: "partial", DR: "low drifting",
+  BL: "blowing", SH: "showers of", TS: "thunderstorm with", FZ: "freezing",
+};
+const WX_PHENOM_SPEECH = {
+  DZ: "drizzle", RA: "rain", SN: "snow", SG: "snow grains", IC: "ice crystals", PL: "ice pellets",
+  GR: "hail", GS: "small hail", UP: "unknown precipitation",
+  BR: "mist", FG: "fog", FU: "smoke", VA: "volcanic ash", DU: "dust", SA: "sand", HZ: "haze",
+  PY: "spray", PO: "dust whirls", SQ: "squalls", FC: "funnel cloud", SS: "sandstorm", DS: "duststorm",
+};
+const CLOUD_COVER_SPEECH = {
+  FEW: "a few clouds", SCT: "scattered clouds", BKN: "broken clouds",
+  OVC: "an overcast layer", VV: "vertical visibility obscured",
+};
+
+function decodeWxStringSpeech(wx) {
+  const tokens = wx.trim().split(/\s+/).filter(Boolean);
+  const phrases = tokens.map((tokRaw) => {
+    let tok = tokRaw.startsWith("VC") ? tokRaw.slice(2) : tokRaw;
+    let intensity = "";
+    if (tok[0] === "-" || tok[0] === "+") {
+      intensity = WX_INTENSITY_SPEECH[tok[0]];
+      tok = tok.slice(1);
+    }
+    let desc = "";
+    for (const code of Object.keys(WX_DESC_SPEECH)) {
+      if (tok.startsWith(code)) {
+        desc = WX_DESC_SPEECH[code];
+        tok = tok.slice(2);
+        break;
+      }
+    }
+    const phenomWords = [];
+    while (tok.length >= 2 && WX_PHENOM_SPEECH[tok.slice(0, 2)]) {
+      phenomWords.push(WX_PHENOM_SPEECH[tok.slice(0, 2)]);
+      tok = tok.slice(2);
+    }
+    const phenom = phenomWords.join(" and ");
+    return [intensity, desc, phenom].filter(Boolean).join(" ") || tokRaw;
+  });
+  return phrases.join(", ");
+}
+
+function buildMetarSpeechText(metar, airport) {
+  const name = (airport && airport.name) || metar.name || metar.icaoId || "the airport";
+  const parts = [`${name} weather.`];
+
+  if (metar.obsTime) {
+    const d = new Date(metar.obsTime * 1000);
+    parts.push(`Observed on the ${ordinal(d.getUTCDate())} at ${pad2(d.getUTCHours())} ${pad2(d.getUTCMinutes())} Zulu.`);
+  }
+
+  if (typeof metar.wdir === "number" && metar.wspd) {
+    let w = `Wind from ${padDir(metar.wdir)} degrees at ${metar.wspd} knots`;
+    if (metar.wgst) w += `, gusting ${metar.wgst} knots`;
+    parts.push(w + ".");
+  } else if (!metar.wspd) {
+    parts.push("Wind calm.");
+  } else {
+    parts.push(`Wind variable at ${metar.wspd} knots.`);
+  }
+
+  const visNum = parseVisib(metar.visib);
+  if (visNum !== null) {
+    const hasPlus = typeof metar.visib === "string" && metar.visib.endsWith("+");
+    parts.push(
+      visNum >= 10 || hasPlus
+        ? "Visibility one zero statute miles or more."
+        : `Visibility ${visNum} statute mile${visNum === 1 ? "" : "s"}.`
+    );
+  }
+
+  if (metar.wxString) {
+    const wxTxt = decodeWxStringSpeech(metar.wxString);
+    parts.push(wxTxt.charAt(0).toUpperCase() + wxTxt.slice(1) + ".");
+  }
+
+  if (metar.clouds && metar.clouds.length) {
+    const txt = metar.clouds
+      .map((c) => {
+        const label = CLOUD_COVER_SPEECH[c.cover] || c.cover;
+        return c.base ? `${label} at ${Number(c.base).toLocaleString("en-US")} feet` : label;
+      })
+      .join(", ");
+    parts.push(txt.charAt(0).toUpperCase() + txt.slice(1) + ".");
+  } else {
+    parts.push("Sky clear.");
+  }
+
+  if (metar.temp !== undefined && metar.temp !== null) {
+    parts.push(`Temperature ${Math.round(metar.temp)} degrees Celsius, dew point ${Math.round(metar.dewp)} degrees Celsius.`);
+  }
+
+  if (metar.altim !== undefined && metar.altim !== null) {
+    parts.push(`Altimeter ${Math.round(metar.altim)} hectopascals.`);
+  }
+
+  if (/\bNOSIG\b/.test(metar.rawOb || "")) parts.push("No significant change expected.");
+
+  return parts.join(" ");
+}
+
+function pickEnglishVoice() {
+  if (!("speechSynthesis" in window)) return null;
+  const voices = window.speechSynthesis.getVoices();
+  return voices.find((v) => v.lang === "en-US") || voices.find((v) => v.lang && v.lang.startsWith("en")) || null;
+}
+
+function updateMetarSpeakBtnLabel() {
+  const btn = document.getElementById("metar-speak-btn");
+  if (!btn) return;
+  const speaking = btn.classList.contains("speaking");
+  const label = speaking ? t("metarSpeakStop") : t("metarSpeakTitle");
+  btn.title = label;
+  btn.setAttribute("aria-label", label);
+}
+
+function setMetarSpeakBtnState(speaking) {
+  const btn = document.getElementById("metar-speak-btn");
+  if (!btn) return;
+  btn.classList.toggle("speaking", speaking);
+  btn.querySelector(".icon use").setAttribute("href", speaking ? "#i-stop" : "#i-speaker");
+  updateMetarSpeakBtnLabel();
+}
+
+function toggleMetarSpeech() {
+  if (!("speechSynthesis" in window)) {
+    alert(t("metarSpeakUnsupported"));
+    return;
+  }
+  if (window.speechSynthesis.speaking) {
+    window.speechSynthesis.cancel();
+    setMetarSpeakBtnState(false);
+    return;
+  }
+  if (!state || !state.metar) return;
+  const text = buildMetarSpeechText(state.metar, state.airport);
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = "en-US";
+  const voice = pickEnglishVoice();
+  if (voice) utter.voice = voice;
+  utter.rate = 0.95;
+  utter.onend = () => setMetarSpeakBtnState(false);
+  utter.onerror = () => setMetarSpeakBtnState(false);
+  window.speechSynthesis.speak(utter);
+  setMetarSpeakBtnState(true);
+}
+
+document.getElementById("metar-speak-btn").addEventListener("click", toggleMetarSpeech);
+updateMetarSpeakBtnLabel();
+document.addEventListener("langchange", updateMetarSpeakBtnLabel);
 
 /* ---------- Unit toggles (in-card only — Dew Point/Temperature and Visibility squares) ---------- */
 function toggleTempUnit() {
