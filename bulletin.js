@@ -34,6 +34,10 @@ function field(label, text) {
 }
 
 function toCompactTime(s) {
+  // Bahrain Met occasionally writes the literal word "Midday"/"Midnight"
+  // instead of a numeric time (e.g. "valid from Midday on ...").
+  if (/^midday$/i.test(s)) return { h: 12, m: 0 };
+  if (/^midnight$/i.test(s)) return { h: 0, m: 0 };
   const m = s.match(/^(\d{1,2})(\d{2})(AM|PM)$/i);
   if (!m) return null;
   return to24h(parseInt(m[1], 10), parseInt(m[2], 10), m[3]);
@@ -63,8 +67,9 @@ function parseBulletin(text) {
   const warning = field("Warning", text);
   const seaState = field("Sea State", text);
 
+  const TIME_TOKEN = "(?:\\d{3,4}(?:AM|PM)|Midday|Midnight)";
   const validM = text.match(
-    /valid from (\d{3,4}(?:AM|PM)) on (\d{1,2}) (\d{1,2}) (\d{4})\s*\n?\s*until (\d{3,4}(?:AM|PM)) tomorrow/i
+    new RegExp(`valid from (${TIME_TOKEN}) on (\\d{1,2}) (\\d{1,2}) (\\d{4})\\s*\\n?\\s*until (${TIME_TOKEN}) tomorrow`, "i")
   );
   if (!weather || !wind || !warning || !seaState || !validM) return null;
 
