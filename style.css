@@ -310,8 +310,9 @@ a { color: var(--azure); }
 
 /* Quick stats */
 .quickstats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 10px;
 }
 .stat {
@@ -325,6 +326,7 @@ a { color: var(--azure); }
   display: flex;
   flex-direction: column;
   align-items: center;
+  flex: 0 1 158px;
 }
 .stat:hover { border-color: var(--border-strong); }
 .stat .stat-icon { display: flex; margin-bottom: 6px; opacity: 0.8; color: var(--text-dim); }
