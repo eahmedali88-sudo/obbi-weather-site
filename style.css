@@ -1,5 +1,6 @@
 :root {
   /* ---- Night (default) — Instrument Panel ---- */
+  color-scheme: dark;
   --bg-0: #0e1013;
   --bg-1: #14171b;
   --bg-2: #191d22;
@@ -31,6 +32,7 @@
 
 :root[data-theme="light"] {
   /* ---- Day — Instrument Panel, light ---- */
+  color-scheme: light;
   --bg-0: #f3f1ea;
   --bg-1: #f3f1ea;
   --bg-2: #ece9de;
@@ -57,6 +59,7 @@
 
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]) {
+    color-scheme: light;
     --bg-0: #f3f1ea;
     --bg-1: #f3f1ea;
     --bg-2: #ece9de;
