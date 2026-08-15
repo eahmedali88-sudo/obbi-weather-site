@@ -326,6 +326,7 @@ a { color: var(--azure); }
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   flex: 0 1 158px;
 }
 .stat:hover { border-color: var(--border-strong); }
