@@ -604,12 +604,27 @@ function buildCompassTicks() {
 }
 buildCompassTicks();
 
-/* ---------- Runway strip rendering ---------- */
-function bearingPoint(cx, cy, r, bearingDeg) {
-  const rad = (bearingDeg * Math.PI) / 180;
-  return { x: cx + r * Math.sin(rad), y: cy - r * Math.cos(rad) };
+/* Two-digit aviation heading numbers at every 30°, skipping the cardinal
+   positions (0/90/180/270) which already show N/E/S/W. Lets a pilot read
+   runway-vs-wind alignment at a glance, same convention as a real HSI. */
+function buildCompassHeadingNums() {
+  const g = document.getElementById("compass-heading-nums");
+  g.innerHTML = "";
+  const cx = 150, cy = 150, r = 118;
+  for (let deg = 0; deg < 360; deg += 30) {
+    if (deg % 90 === 0) continue;
+    const rad = (deg * Math.PI) / 180;
+    const x = cx + r * Math.sin(rad);
+    const y = cy - r * Math.cos(rad);
+    const label = String(Math.round(deg / 10)).padStart(2, "0");
+    const text = svgEl("text", { x, y, class: "compass-heading-num", "text-anchor": "middle", "dominant-baseline": "middle" });
+    text.textContent = label;
+    g.appendChild(text);
+  }
 }
+buildCompassHeadingNums();
 
+/* ---------- Runway strip rendering ---------- */
 function svgEl(tag, attrs) {
   const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
   for (const k in attrs) el.setAttribute(k, attrs[k]);
@@ -661,19 +676,32 @@ function renderRunwayMark(airport, activeRunwayIdx, wdir) {
     }
   }
 
-  // End labels, positioned via true bearing so they stay upright (not rotated)
+  // Runway numbers painted directly on the strip (matches real runway
+  // threshold markings) so wind-vs-runway alignment reads at a glance.
+  // Both labels share the strip's own rotation (hdg) so they can't drift
+  // out of alignment with it; the far one gets an additional LOCAL 180°
+  // flip around its own position (not the shared center) so it still
+  // reads upright from its own approach direction.
   const parts = rw.id.split("/");
-  const labelRadius = 122;
-  [0, 1].forEach((i) => {
-    const bearing = rw.hdgs[i];
-    const pt = bearingPoint(cx, cy, labelRadius, bearing);
-    const label = svgEl("text", {
-      x: pt.x, y: pt.y,
-      class: "runway-label" + (i === activeEndIdx ? " active" : ""),
-    });
-    label.textContent = parts[i];
-    g.appendChild(label);
+  const labelInset = 22;
+  const y0 = cy - halfLen + labelInset;
+  const y1 = cy + halfLen - labelInset;
+
+  const label0 = svgEl("text", {
+    x: cx, y: y0,
+    class: "runway-num-label" + (activeEndIdx === 0 ? " active" : ""),
+    transform: `rotate(${hdg} ${cx} ${cy})`,
   });
+  label0.textContent = parts[0];
+  g.appendChild(label0);
+
+  const label1 = svgEl("text", {
+    x: cx, y: y1,
+    class: "runway-num-label" + (activeEndIdx === 1 ? " active" : ""),
+    transform: `rotate(${hdg} ${cx} ${cy}) rotate(180 ${cx} ${y1})`,
+  });
+  label1.textContent = parts[1];
+  g.appendChild(label1);
 }
 
 function renderCompass(wdir, wspd, wgst) {
@@ -947,17 +975,17 @@ function renderQuickStats(metar) {
   const ageMin = metar.obsTime ? Math.round((Date.now() / 1000 - metar.obsTime) / 60) : null;
 
   const stats = [
-    { icon: "🚦", label: t("statCategory"), value: cat, cls: `cat-${cat}`, badge: true },
-    { icon: "🌡️", label: t("statTemp"), value: fmtTemp(metar.temp), unitKey: "temp", unitLabel: tempUnit === "C" ? "°F" : "°C" },
-    { icon: "💧", label: t("statDew"), value: fmtTemp(metar.dewp), unitKey: "temp", unitLabel: tempUnit === "C" ? "°F" : "°C" },
-    { icon: "💦", label: t("statHumidity"), value: rh !== null ? `${rh}%` : "--" },
-    { icon: "🧭", label: t("statWind"), value: fmtWind(metar.wdir, metar.wspd, metar.wgst) },
-    { icon: "👁️", label: t("statVisibility"), value: fmtVis(metar.visib), unitKey: "vis", unitLabel: visUnit === "SM" ? "km" : "SM" },
-    { icon: "🌦️", label: t("dWeather"), value: metar.wxString || t("noWx") },
-    { icon: "☁️", label: t("dClouds"), value: (metar.clouds || []).map((c) => `${c.cover}${c.base ? " " + c.base + "ft" : ""}`).join(" / ") || t("clearSky") },
-    { icon: "🌧️", label: t("statRain"), value: state && state.rainProb !== null && state.rainProb !== undefined ? `${state.rainProb}%` : "--" },
-    { icon: "📊", label: t("statQnh"), value: metar.altim !== undefined && metar.altim !== null ? `${fmtNum(metar.altim, 1)} hPa` : "--" },
-    { icon: "🕐", label: t("statAge"), value: ageMin !== null ? `${ageMin} ${t("minutesAgo")}` : "--" },
+    { icon: "i-status", label: t("statCategory"), value: cat, cls: `cat-${cat}`, badge: true },
+    { icon: "i-thermo", label: t("statTemp"), value: fmtTemp(metar.temp), unitKey: "temp", unitLabel: tempUnit === "C" ? "°F" : "°C" },
+    { icon: "i-droplet", label: t("statDew"), value: fmtTemp(metar.dewp), unitKey: "temp", unitLabel: tempUnit === "C" ? "°F" : "°C" },
+    { icon: "i-droplets", label: t("statHumidity"), value: rh !== null ? `${rh}%` : "--" },
+    { icon: "i-wind", label: t("statWind"), value: fmtWind(metar.wdir, metar.wspd, metar.wgst) },
+    { icon: "i-eye", label: t("statVisibility"), value: fmtVis(metar.visib), unitKey: "vis", unitLabel: visUnit === "SM" ? "km" : "SM" },
+    { icon: "i-cloud-sun", label: t("dWeather"), value: metar.wxString || t("noWx") },
+    { icon: "i-cloud", label: t("dClouds"), value: (metar.clouds || []).map((c) => `${c.cover}${c.base ? " " + c.base + "ft" : ""}`).join(" / ") || t("clearSky") },
+    { icon: "i-cloud-rain", label: t("statRain"), value: state && state.rainProb !== null && state.rainProb !== undefined ? `${state.rainProb}%` : "--" },
+    { icon: "i-gauge", label: t("statQnh"), value: metar.altim !== undefined && metar.altim !== null ? `${fmtNum(metar.altim, 1)} hPa` : "--" },
+    { icon: "i-clock", label: t("statAge"), value: ageMin !== null ? `${ageMin} ${t("minutesAgo")}` : "--" },
   ];
 
   const wrap = document.getElementById("quickstats");
@@ -965,7 +993,7 @@ function renderQuickStats(metar) {
     .map(
       (s) => `<div class="stat fade-in ${s.badge ? "badge " + s.cls : ""}">
         ${s.unitKey ? `<button class="stat-unit-btn" data-unit-key="${s.unitKey}" title="${t("switchUnit")}">${s.unitLabel}</button>` : ""}
-        <span class="stat-icon">${s.icon}</span>
+        <span class="stat-icon"><svg class="icon"><use href="#${s.icon}"/></svg></span>
         <span class="stat-value">${s.value}</span>
         <span class="stat-label">${s.label}</span>
       </div>`
@@ -1234,6 +1262,35 @@ function setLang(l) {
 document.getElementById("lang-toggle").addEventListener("click", () => {
   setLang(lang === "ar" ? "en" : "ar");
 });
+
+/* ---------- Theme toggle (day/night) ---------- */
+const SUN_ICON =
+  '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2 12h2.5M19.5 12H22M4.2 19.8L6 18M18 6l1.8-1.8"/></svg>';
+const MOON_ICON =
+  '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a.6.6 0 0 0-.8-.7A9.5 9.5 0 1 0 21.2 15.3a.6.6 0 0 0-.7-.8Z"/></svg>';
+
+function effectiveTheme() {
+  const saved = localStorage.getItem("obbi_theme");
+  if (saved) return saved;
+  return window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+}
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  const btn = document.getElementById("theme-toggle");
+  if (btn) btn.innerHTML = theme === "dark" ? SUN_ICON : MOON_ICON;
+}
+
+function setTheme(theme) {
+  localStorage.setItem("obbi_theme", theme);
+  applyTheme(theme);
+}
+
+document.getElementById("theme-toggle").addEventListener("click", () => {
+  setTheme(effectiveTheme() === "dark" ? "light" : "dark");
+});
+
+applyTheme(effectiveTheme());
 
 /* ---------- Unit toggles (in-card only — Dew Point/Temperature and Visibility squares) ---------- */
 function toggleTempUnit() {

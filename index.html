@@ -6,9 +6,155 @@
 <title>طقس الطيران | مطار البحرين الدولي OBBI</title>
 <link rel="icon" type="image/png" href="favicon.png?v=1">
 <link rel="apple-touch-icon" href="favicon.png?v=1">
-<link rel="stylesheet" href="style.css?v=22">
+<link rel="stylesheet" href="style.css?v=23">
+<script>(function(){var s=localStorage.getItem("obbi_theme");if(s)document.documentElement.setAttribute("data-theme",s);})();</script>
 </head>
 <body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<defs>
+<symbol id="i-wind" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M3 8h11.5a2.5 2.5 0 1 0-2.3-3.4"/>
+  <path d="M3 16h14.5a2.5 2.5 0 1 1-2.3 3.4"/>
+  <path d="M3 12h8.5a2.5 2.5 0 1 0-2.3-3.4"/>
+</g></symbol>
+
+<symbol id="i-landing" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M3 20h18"/>
+  <path d="M5 15.5 10 13l6.5-6.2a1.4 1.4 0 0 1 2.2 1.6L15 15l3 1.2-1 1.3-3.6-.5-3 2.3-1.4-.4.9-2.6-4-1"/>
+</g></symbol>
+
+<symbol id="i-newspaper" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+  <rect x="3" y="5" width="14" height="15" rx="1.2"/>
+  <path d="M17 8h3a1 1 0 0 1 1 1v9.5a1.5 1.5 0 0 1-1.5 1.5H6"/>
+  <path d="M6.5 8.5h7M6.5 11.5h7M6.5 14.5h4"/>
+</g></symbol>
+
+<symbol id="i-warning" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M12 3.5 21.5 20h-19Z"/>
+  <path d="M12 9.5v5"/>
+  <circle cx="12" cy="17" r="0.9" fill="currentColor" stroke="none"/>
+</g></symbol>
+
+<symbol id="i-altimeter" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+  <circle cx="12" cy="13" r="8.5"/>
+  <path d="M12 13 15.8 8.5"/>
+  <path d="M12 3v1.6M20 13h1.5M2.5 13H4M6 6l1.1 1.1M18 6l-1.1 1.1"/>
+</g></symbol>
+
+<symbol id="i-doc" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M6 3h8l4 4v14H6Z"/>
+  <path d="M14 3v4h4"/>
+  <path d="M9 12.5h6M9 15.5h6M9 9.5h3"/>
+</g></symbol>
+
+<symbol id="i-doc-stack" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M8 2.5h6l3.5 3.5v12.5H8Z"/>
+  <path d="M14 2.5v3.5h3.5"/>
+  <path d="M4.5 6.5v14.5H14"/>
+</g></symbol>
+
+<symbol id="i-clock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+  <circle cx="12" cy="12.5" r="8.5"/>
+  <path d="M12 7.5V13l4 2.3"/>
+</g></symbol>
+
+<symbol id="i-trend" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M3 18 9 11l4 4 8-9"/>
+  <path d="M16 6h5v5"/>
+</g></symbol>
+
+<symbol id="i-sun" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+  <circle cx="12" cy="12" r="4.5"/>
+  <path d="M12 2.5v2.7M12 18.8v2.7M4.2 4.2l1.9 1.9M17.9 17.9l1.9 1.9M2.2 12h2.7M19.1 12h2.7M4.2 19.8l1.9-1.9M17.9 6.1l1.9-1.9"/>
+</g></symbol>
+
+<symbol id="i-list" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M9 6.5h11M9 12h11M9 17.5h11"/>
+  <circle cx="4.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+  <circle cx="4.5" cy="12" r="1" fill="currentColor" stroke="none"/>
+  <circle cx="4.5" cy="17.5" r="1" fill="currentColor" stroke="none"/>
+</g></symbol>
+
+<symbol id="i-megaphone" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M3 10v4h3l6 4.5V5.5L6 10Z"/>
+  <path d="M15 8.5a5 5 0 0 1 0 7M18.3 5.5a9.5 9.5 0 0 1 0 13"/>
+</g></symbol>
+
+<symbol id="i-heli" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M3 5h9M7.5 5v3.5"/>
+  <path d="M5 12.5h9a4 4 0 0 1 4 4v.5h2.5"/>
+  <path d="M8 12.5v-2h3v2"/>
+  <path d="M5 17h9"/>
+  <path d="M16 17v3"/>
+</g></symbol>
+
+<symbol id="i-runway" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+  <path d="M9 3 5 21M15 3l4 18"/>
+  <path d="M10.5 7h3M10 11h4M9.6 15h4.8"/>
+</g></symbol>
+
+<symbol id="i-radio" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+  <rect x="3.5" y="10" width="17" height="10" rx="1.3"/>
+  <circle cx="8" cy="15" r="2.2"/>
+  <path d="M14 13.5h4M14 16.5h4"/>
+  <path d="M7 10 15 4M9 6.5l1.5-1.7M15 4l2 2.3"/>
+</g></symbol>
+
+<symbol id="i-satellite" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+  <rect x="9.3" y="9.3" width="5.4" height="5.4" rx="0.8" transform="rotate(45 12 12)"/>
+  <path d="M4 4l3 3M2.5 8l4.5 4.5M20 4l-3 3M21.5 8l-4.5 4.5"/>
+  <path d="M12 15v4.5M12 19.5h-3M15.5 22l-1.8-1.8"/>
+</g></symbol>
+
+<symbol id="i-thermo" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M12 14.5V4.5a2 2 0 0 0-4 0v10a4 4 0 1 0 4 0Z"/>
+  <circle cx="10" cy="17" r="1.4" fill="currentColor" stroke="none"/>
+</g></symbol>
+
+<symbol id="i-droplet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M12 3.5s6 6.7 6 11a6 6 0 1 1-12 0c0-4.3 6-11 6-11Z"/>
+</g></symbol>
+
+<symbol id="i-droplets" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M9.5 2.5s4.3 5 4.3 8a4.3 4.3 0 1 1-8.6 0c0-3 4.3-8 4.3-8Z"/>
+  <path d="M16.5 10.5s2.7 3.1 2.7 5a2.7 2.7 0 1 1-5.4 0c0-1.9 2.7-5 2.7-5Z"/>
+</g></symbol>
+
+<symbol id="i-eye" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12Z"/>
+  <circle cx="12" cy="12" r="2.6"/>
+</g></symbol>
+
+<symbol id="i-cloud-sun" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+  <circle cx="8" cy="7.5" r="3"/>
+  <path d="M8 2.5v1.3M4 5l.9.9M12 5l-.9.9"/>
+  <path d="M6 20h11a3.5 3.5 0 0 0 .5-6.96A5 5 0 0 0 8 12.2 3.5 3.5 0 0 0 6 20Z"/>
+</g></symbol>
+
+<symbol id="i-cloud" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M6.5 19h11a4 4 0 0 0 .6-7.95A5.5 5.5 0 0 0 7.6 10.3 4 4 0 0 0 6.5 19Z"/>
+</g></symbol>
+
+<symbol id="i-cloud-rain" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M6 15.5h10.5a3.8 3.8 0 0 0 .5-7.56A5.2 5.2 0 0 0 7 7.3 3.8 3.8 0 0 0 6 15.5Z"/>
+  <path d="M8.5 18.5 7.5 21M12.5 18.5l-1 2.5M16.5 18.5l-1 2.5"/>
+</g></symbol>
+
+<symbol id="i-gauge" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+  <circle cx="12" cy="13" r="8.5"/>
+  <path d="M12 13 15.8 8.5"/>
+  <path d="M12 3v1.6M20 13h1.5M2.5 13H4M6 6l1.1 1.1M18 6l-1.1 1.1"/>
+</g></symbol>
+
+<symbol id="i-status" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+  <rect x="7" y="2.5" width="10" height="17" rx="2.2"/>
+  <circle cx="12" cy="6.3" r="1.1" fill="currentColor" stroke="none"/>
+  <circle cx="12" cy="10.7" r="1.1" fill="currentColor" stroke="none"/>
+  <circle cx="12" cy="15.1" r="1.1" fill="currentColor" stroke="none"/>
+</g></symbol>
+</defs>
+</svg>
 
 <div class="flag-rail" aria-hidden="true"></div>
 
@@ -31,6 +177,7 @@
         <input id="icao-input" type="text" maxlength="4" placeholder="OBBI" value="OBBI" spellcheck="false">
         <button type="submit" data-i18n="update">تحديث</button>
       </form>
+      <button id="theme-toggle" class="theme-toggle" type="button" title="Switch theme" aria-label="Switch theme"></button>
       <button id="lang-toggle" class="lang-toggle" type="button" title="Switch language">EN</button>
     </div>
 
@@ -48,7 +195,7 @@
 </header>
 
 <div class="disclaimer">
-  <span class="disclaimer-icon">⚠️</span>
+  <span class="disclaimer-icon"><svg class="icon"><use href="#i-warning"/></svg></span>
   <span data-i18n="disclaimer">هذه الأداة لأغراض معلوماتية ومساعدة عامة فقط، ولا تُغني إطلاقاً عن مصادر الطقس والنوتام الرسمية (NOTAM) المعتمدة عند تخطيط الرحلات الفعلي. تحقق دائماً من الجهات الرسمية قبل الطيران.</span>
 </div>
 
@@ -80,23 +227,13 @@
 
   <section class="grid-2">
     <div class="card compass-card">
-      <h2><span class="card-icon">🧭</span><span data-i18n="windTitle">اتجاه وسرعة الرياح</span></h2>
+      <h2><span class="card-icon"><svg class="icon"><use href="#i-wind"/></svg></span><span data-i18n="windTitle">اتجاه وسرعة الرياح</span></h2>
       <div class="compass-wrap">
         <svg id="compass" viewBox="0 0 300 300" class="compass-svg">
-          <defs>
-            <radialGradient id="compassBg" cx="50%" cy="42%" r="70%">
-              <stop offset="0%" stop-color="#173463"/>
-              <stop offset="100%" stop-color="#0b1f3f"/>
-            </radialGradient>
-            <linearGradient id="runwayFill" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stop-color="#33383f"/>
-              <stop offset="50%" stop-color="#484f59"/>
-              <stop offset="100%" stop-color="#33383f"/>
-            </linearGradient>
-          </defs>
           <circle cx="150" cy="150" r="140" class="compass-ring"/>
           <circle cx="150" cy="150" r="140" class="compass-ring-outline"/>
           <g id="compass-ticks"></g>
+          <g id="compass-heading-nums"></g>
           <g id="compass-labels" class="compass-dir-labels">
             <text x="150" y="30" text-anchor="middle">N</text>
             <text x="270" y="156" text-anchor="middle">E</text>
@@ -119,7 +256,7 @@
     </div>
 
     <div class="card">
-      <h2><span class="card-icon">🛬</span><span data-i18n="crosswindTitle">الرياح الجانبية والأمامية للمدرج</span></h2>
+      <h2><span class="card-icon"><svg class="icon"><use href="#i-landing"/></svg></span><span data-i18n="crosswindTitle">الرياح الجانبية والأمامية للمدرج</span></h2>
       <p class="hint" data-i18n="crosswindHint">القيم تقديرية لأغراض المعلومات فقط — لا تُستخدم للتخطيط الفعلي.</p>
       <div class="xwind-limit-row">
         <label for="xwind-limit-input" data-i18n="xwindLimitLabel">الحد الأقصى للرياح الجانبية لطائرتك (kt)</label>
@@ -130,7 +267,7 @@
   </section>
 
   <section class="card notam-card" id="bulletin-card">
-    <h2><span class="card-icon">📰</span><span data-i18n="bulletinTitle">النشرة الجوية العامة (البحرين)</span></h2>
+    <h2><span class="card-icon"><svg class="icon"><use href="#i-newspaper"/></svg></span><span data-i18n="bulletinTitle">النشرة الجوية العامة (البحرين)</span></h2>
     <table class="decoded-table" id="bulletin-table">
       <tbody></tbody>
     </table>
@@ -138,13 +275,13 @@
   </section>
 
   <section class="card" id="sigmet-card">
-    <h2><span class="card-icon">⚠️</span><span data-i18n="sigmetTitle">تحذيرات SIGMET — منطقة معلومات الطيران</span></h2>
+    <h2><span class="card-icon"><svg class="icon"><use href="#i-warning"/></svg></span><span data-i18n="sigmetTitle">تحذيرات SIGMET — منطقة معلومات الطيران</span></h2>
     <p class="hint" data-i18n="sigmetHint">تحذيرات جوية رسمية من مصدر NOAA — لا تُغني عن الإحاطة الرسمية قبل الرحلة.</p>
     <div id="sigmet-body"></div>
   </section>
 
   <section class="card" id="da-card">
-    <h2><span class="card-icon">🌡️</span><span data-i18n="daTitle">ارتفاع الكثافة (Density Altitude)</span></h2>
+    <h2><span class="card-icon"><svg class="icon"><use href="#i-altimeter"/></svg></span><span data-i18n="daTitle">ارتفاع الكثافة (Density Altitude)</span></h2>
     <p class="hint" data-i18n="daHint">محسوب من درجة الحرارة والضغط الحاليين وارتفاع المطار — يؤثر مباشرة على أداء الإقلاع والتسلق.</p>
     <div class="da-wrap">
       <div class="da-main">
@@ -161,12 +298,12 @@
   </section>
 
   <section class="card">
-    <h2><span class="card-icon">📄</span><span data-i18n="rawMetarTitle">تقرير METAR الخام</span></h2>
+    <h2><span class="card-icon"><svg class="icon"><use href="#i-doc"/></svg></span><span data-i18n="rawMetarTitle">تقرير METAR الخام</span></h2>
     <pre id="raw-metar" class="raw-box">--</pre>
-    <h2 class="mt"><span class="card-icon">📑</span><span data-i18n="rawTafTitle">تقرير TAF الخام</span></h2>
+    <h2 class="mt"><span class="card-icon"><svg class="icon"><use href="#i-doc-stack"/></svg></span><span data-i18n="rawTafTitle">تقرير TAF الخام</span></h2>
     <pre id="raw-taf" class="raw-box">--</pre>
 
-    <h2 class="mt"><span class="card-icon">🕘</span><span data-i18n="metarHistoryTitle">سجل METAR</span></h2>
+    <h2 class="mt"><span class="card-icon"><svg class="icon"><use href="#i-clock"/></svg></span><span data-i18n="metarHistoryTitle">سجل METAR</span></h2>
     <div class="metar-history-scroll">
       <table class="metar-history-table" id="metar-history-table">
         <thead>
@@ -187,7 +324,7 @@
   </section>
 
   <section class="card">
-    <h2><span class="card-icon">📈</span><span data-i18n="tafTimelineTitle">توقعات TAF</span></h2>
+    <h2><span class="card-icon"><svg class="icon"><use href="#i-trend"/></svg></span><span data-i18n="tafTimelineTitle">توقعات TAF</span></h2>
     <div class="taf-scroll">
       <table class="taf-table" id="taf-table">
         <thead>
@@ -206,7 +343,7 @@
   </section>
 
   <section class="card" id="daylight-card">
-    <h2><span class="card-icon">☀️</span><span data-i18n="daylightTitle">فترة النهار</span></h2>
+    <h2><span class="card-icon"><svg class="icon"><use href="#i-sun"/></svg></span><span data-i18n="daylightTitle">فترة النهار</span></h2>
     <div class="daylight-wrap">
       <svg id="sun-arc" viewBox="0 0 400 150" class="sun-arc-svg">
         <path d="M 20 130 Q 200 -20 380 130" class="arc-path"/>
@@ -223,14 +360,14 @@
   </section>
 
   <section class="card" id="decoded-card">
-    <h2><span class="card-icon">📋</span><span data-i18n="decodedTitle">تفاصيل الأرصاد</span></h2>
+    <h2><span class="card-icon"><svg class="icon"><use href="#i-list"/></svg></span><span data-i18n="decodedTitle">تفاصيل الأرصاد</span></h2>
     <table class="decoded-table" id="decoded-table">
       <tbody></tbody>
     </table>
   </section>
 
   <section class="card notam-card" id="notam-card">
-    <h2><span class="card-icon">📢</span><span data-i18n="notamTitle">إشعارات الطيارين (NOTAM)</span></h2>
+    <h2><span class="card-icon"><svg class="icon"><use href="#i-megaphone"/></svg></span><span data-i18n="notamTitle">إشعارات الطيارين (NOTAM)</span></h2>
     <p class="hint" data-i18n="notamHint">مستخرجة تلقائياً من نشرة PIB الرسمية للبحرين — هذه النشرة ليست بالضرورة محدثة لحظياً، والموقع الرسمي لا يضمن تحديثها يومياً كما هو معلن. تحقق دائماً من البوابة الرسمية قبل الطيران الفعلي.</p>
     <div id="notam-freshness" class="notam-freshness"></div>
     <div id="notam-list"></div>
@@ -240,7 +377,7 @@
   </section>
 
   <section class="card notam-card" id="heli-card">
-    <h2><span class="card-icon">🚁</span><span data-i18n="heliTitle">توقعات المروحيات والمنطقة المحلية</span></h2>
+    <h2><span class="card-icon"><svg class="icon"><use href="#i-heli"/></svg></span><span data-i18n="heliTitle">توقعات المروحيات والمنطقة المحلية</span></h2>
     <p class="hint" data-i18n="heliHint">مستخرجة تلقائياً من نشرة إدارة الأرصاد الجوية البحرينية الرسمية — رياح وحرارة من السطح حتى FL390، مستوى التجمد، منسوب التروبوبوز، وتحذيرات التجمد لدائرة 50 كم حول مطار البحرين الدولي.</p>
     <div id="heli-freshness" class="notam-freshness"></div>
     <div id="heli-content"></div>
@@ -268,13 +405,13 @@
   </section>
 
   <section class="card" id="runway-specs-card">
-    <h2><span class="card-icon">🛣️</span><span data-i18n="rsTitle">المدرجات</span></h2>
+    <h2><span class="card-icon"><svg class="icon"><use href="#i-runway"/></svg></span><span data-i18n="rsTitle">المدرجات</span></h2>
     <p class="hint" data-i18n="rsHint">البيانات الفيزيائية مرجعية — الاتجاه المغناطيسي والطول والعرض من مصادرنا المتحقق منها؛ الاتجاه الحقيقي وإحداثيات العتبة تقديرية محسوبة، وليست من منشور AIP رسمي.</p>
     <div id="runway-specs-wrap" class="taf-scroll"></div>
   </section>
 
   <section class="card" id="comms-card">
-    <h2><span class="card-icon">📻</span><span data-i18n="commsTitle">اتصالات مطار البحرين الدولي</span></h2>
+    <h2><span class="card-icon"><svg class="icon"><use href="#i-radio"/></svg></span><span data-i18n="commsTitle">اتصالات مطار البحرين الدولي</span></h2>
     <p class="hint" data-i18n="commsHint">ترددات مرجعية — تحقق دائماً من آخر إصدار لمنشور معلومات الطيران (AIP) والنوتام قبل الاستخدام الفعلي.</p>
     <table class="decoded-table" id="comms-table">
       <tbody></tbody>
@@ -282,7 +419,7 @@
   </section>
 
   <section class="card" id="navaids-card">
-    <h2><span class="card-icon">🛰️</span><span data-i18n="navaidsTitle">الوسائل الملاحية القريبة — مطار البحرين الدولي (OBBI)</span></h2>
+    <h2><span class="card-icon"><svg class="icon"><use href="#i-satellite"/></svg></span><span data-i18n="navaidsTitle">الوسائل الملاحية القريبة — مطار البحرين الدولي (OBBI)</span></h2>
     <p class="hint" data-i18n="navaidsHint">مواقع وترددات حقيقية (بيانات مفتوحة من OurAirports)، مع المدى والاتجاه المحسوبين فلكياً من مركز مطار البحرين — لأغراض مرجعية فقط وليست مخططات ملاحة رسمية.</p>
 
     <div class="navaid-tables">
@@ -330,8 +467,8 @@
   </a>
 </footer>
 
-<script src="script.js?v=32"></script>
-<script src="navaids.js?v=32"></script>
+<script src="script.js?v=33"></script>
+<script src="navaids.js?v=33"></script>
 <script type="module" src="bulletin.js?v=6"></script>
 <script type="module" src="notam.js?v=5"></script>
 <script type="module" src="heli.js?v=5"></script>
