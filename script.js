@@ -182,6 +182,10 @@ const STR = {
   fromLeft: { ar: "من اليسار", en: "from left" },
   noRunwayData: { ar: "لا تتوفر بيانات مدرج مسجّلة لهذا المطار في قاعدة البيانات المحلية.", en: "No runway data registered for this airport in the local database." },
   noWindData: { ar: "بيانات الرياح غير متوفرة حالياً.", en: "Wind data currently unavailable." },
+  windVariableNoXwind: {
+    ar: "الرياح متغيرة الاتجاه حالياً — لا يمكن حساب الرياح الجانبية لمدرج محدد.",
+    en: "Wind direction is currently variable — crosswind component can't be computed for a specific runway.",
+  },
   xwindLimitLabel: { ar: "الحد الأقصى للرياح الجانبية لطائرتك (kt)", en: "Your aircraft's max demonstrated crosswind (kt)" },
   xwindExceeded: { ar: "⚠️ يتجاوز حدك الشخصي", en: "⚠️ Exceeds your limit" },
 
@@ -766,11 +770,15 @@ function getXwindLimit() {
 function renderRunwayTable(airport, wdir, wspd) {
   const wrap = document.getElementById("runway-table-wrap");
   if (!airport.runways || airport.runways.length === 0) {
-    wrap.innerHTML = `<p class="hint">${t("noRunwayData")}</p>`;
+    wrap.innerHTML = `<p class="hint" style="margin:0">${t("noRunwayData")}</p>`;
     return;
   }
-  if (typeof wdir !== "number" || wspd === null || wspd === undefined) {
-    wrap.innerHTML = `<p class="hint">${t("noWindData")}</p>`;
+  if (wspd === null || wspd === undefined) {
+    wrap.innerHTML = `<p class="hint" style="margin:0">${t("noWindData")}</p>`;
+    return;
+  }
+  if (typeof wdir !== "number") {
+    wrap.innerHTML = `<p class="hint" style="margin:0">${t("windVariableNoXwind")}</p>`;
     return;
   }
 
