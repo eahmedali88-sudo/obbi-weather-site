@@ -1,15 +1,15 @@
 /*
  * Bahrain NOTAM bulletin (PIB) — fetches the raw PDF via /proxy/notam (same
- * byte-proxy pattern as bulletin.js) and parses it client-side with the
- * already-vendored pdf.js build. This source is Bahrain's official "Daily
- * PIB" — but it has been observed to sit unrefreshed for weeks at a time
- * despite the "Daily" label, so this module always surfaces the bulletin's
- * own generation timestamp prominently instead of implying it's live.
+ * byte-proxy pattern as bulletin.js) and parses it client-side with
+ * pdf-lite.js (no Worker, no WASM — pdf.js's Worker hung silently on some
+ * mobile browsers instead of failing cleanly). This source is Bahrain's
+ * official "Daily PIB" — but it has been observed to sit unrefreshed for
+ * weeks at a time despite the "Daily" label, so this module always
+ * surfaces the bulletin's own generation timestamp prominently instead of
+ * implying it's live.
  */
 
-import * as pdfjsLib from "./vendor/pdf.min.mjs?v=1";
-
-pdfjsLib.GlobalWorkerOptions.workerSrc = "./vendor/pdf.worker.min.mjs?v=1";
+import { extractPdfText } from "./pdf-lite.js?v=2";
 
 const PDF_PROXY_URL = "/proxy/notam";
 const REFRESH_MS = 5 * 60 * 1000;
@@ -48,20 +48,6 @@ let lastResult = null; // { systemTime: isoString|null, notams: [...] } | null
 function bahrainIsoFromParts(yy, mm, dd, hh, min) {
   const year = 2000 + parseInt(yy, 10);
   return `${year}-${mm}-${dd}T${hh}:${min}:00+03:00`;
-}
-
-async function extractPdfText(arrayBuffer) {
-  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-  let text = "";
-  for (let i = 1; i <= pdf.numPages; i++) {
-    const page = await pdf.getPage(i);
-    const content = await page.getTextContent();
-    for (const item of content.items) {
-      text += item.str;
-      if (item.hasEOL) text += "\n";
-    }
-  }
-  return text;
 }
 
 function parsePib(rawTextIn) {

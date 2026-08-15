@@ -1,12 +1,11 @@
 /*
  * Bahrain Helicopter Ops / Local Area Forecast — fetches the raw PDF via
  * /proxy/heli (same byte-proxy pattern as bulletin.js/notam.js) and parses
- * it client-side with the already-vendored pdf.js build.
+ * it client-side with pdf-lite.js (no Worker, no WASM — pdf.js's Worker
+ * hung silently on some mobile browsers instead of failing cleanly).
  */
 
-import * as pdfjsLib from "./vendor/pdf.min.mjs?v=1";
-
-pdfjsLib.GlobalWorkerOptions.workerSrc = "./vendor/pdf.worker.min.mjs?v=1";
+import { extractPdfText } from "./pdf-lite.js?v=2";
 
 const PDF_PROXY_URL = "/proxy/heli";
 const REFRESH_MS = 5 * 60 * 1000;
@@ -24,18 +23,6 @@ function withTimeout(promise, ms) {
     promise,
     new Promise((_, reject) => setTimeout(() => reject(new Error("timed out")), ms)),
   ]);
-}
-
-async function extractPdfText(arrayBuffer) {
-  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-  const page = await pdf.getPage(1);
-  const content = await page.getTextContent();
-  let text = "";
-  for (const item of content.items) {
-    text += item.str;
-    if (item.hasEOL) text += "\n";
-  }
-  return text;
 }
 
 function isoUtc(year, month, day, hh, mm) {
