@@ -6,24 +6,17 @@
  */
 
 import { extractPdfText } from "./pdf-lite.js?v=2";
+import { withTimeout, stalenessClass } from "./shared.js?v=1";
 
 const PDF_PROXY_URL = "/proxy/heli";
 const REFRESH_MS = 5 * 60 * 1000;
 const LOAD_TIMEOUT_MS = 20000;
+const RETRY_PAUSE_MS = 1500;
+const INITIAL_LOAD_STAGGER_MS = 800; // staggered after bulletin.js/notam.js so first-load fetches don't all fire at once
+const STALE_AFTER_H = 6;
+const VERY_STALE_AFTER_H = 12;
 
 let lastForecast = null;
-
-// Some mobile browsers silently fail to spin up pdf.js's Worker (module
-// worker support gaps, CSP quirks, etc.), and getDocument() can then hang
-// forever instead of rejecting — leaving the card blank with no error and
-// no retry ever firing. Bound every attempt so a hang always turns into a
-// visible failure instead of infinite silence.
-function withTimeout(promise, ms) {
-  return Promise.race([
-    promise,
-    new Promise((_, reject) => setTimeout(() => reject(new Error("timed out")), ms)),
-  ]);
-}
 
 function isoUtc(year, month, day, hh, mm) {
   const pad = (n) => String(n).padStart(2, "0");
@@ -126,9 +119,7 @@ function renderFreshness() {
   }
 
   const ageHours = (Date.now() - new Date(lastForecast.issued).getTime()) / 3600000;
-  let cls = "notam-freshness";
-  if (ageHours > 12) cls += " very-stale";
-  else if (ageHours > 6) cls += " stale";
+  const cls = "notam-freshness" + stalenessClass(ageHours, STALE_AFTER_H, VERY_STALE_AFTER_H);
 
   el.className = cls;
   el.textContent = `${t("heliIssued")}: ${fmtDateTime(lastForecast.issued)} — ${lastForecast.meteorologist}`;
@@ -209,12 +200,12 @@ async function load() {
   try {
     await loadOnce();
   } catch (err) {
-    // The first attempt on page load competes with the other PDF cards for
-    // the same large pdf.js worker file, so a slow/weak connection can time
-    // one of them out. One retry after a short pause covers that case
-    // without masking a genuinely broken source.
+    // This card's fetch runs alongside bulletin.js/notam.js on first page
+    // load, so a slow/weak connection can time one of them out. One retry
+    // after a short pause covers that case without masking a genuinely
+    // broken source.
     try {
-      await new Promise((r) => setTimeout(r, 1500));
+      await new Promise((r) => setTimeout(r, RETRY_PAUSE_MS));
       await loadOnce();
     } catch (err2) {
       console.error("Failed to load helicopter ops forecast", err2);
@@ -229,7 +220,5 @@ document.addEventListener("visibilitychange", () => {
 });
 window.addEventListener("pageshow", load);
 
-// Staggered so this doesn't fight bulletin.js/notam.js for the same large
-// pdf.js worker file on first page load (they'd otherwise fire simultaneously).
-setTimeout(load, 800);
+setTimeout(load, INITIAL_LOAD_STAGGER_MS);
 setInterval(load, REFRESH_MS);

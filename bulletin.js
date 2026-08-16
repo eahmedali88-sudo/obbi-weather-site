@@ -8,24 +8,14 @@
  */
 
 import { extractPdfText } from "./pdf-lite.js?v=2";
+import { withTimeout } from "./shared.js?v=1";
 
 const PDF_PROXY_URL = "/proxy/bulletin";
 const REFRESH_MS = 5 * 60 * 1000;
 const LOAD_TIMEOUT_MS = 20000;
+const RETRY_PAUSE_MS = 1500;
 
 let lastBulletin = null;
-
-// Some mobile browsers silently fail to spin up pdf.js's Worker (module
-// worker support gaps, CSP quirks, etc.), and getDocument() can then hang
-// forever instead of rejecting — leaving the card blank with no error and
-// no retry ever firing. Bound every attempt so a hang always turns into a
-// visible failure instead of infinite silence.
-function withTimeout(promise, ms) {
-  return Promise.race([
-    promise,
-    new Promise((_, reject) => setTimeout(() => reject(new Error("timed out")), ms)),
-  ]);
-}
 
 function field(label, text) {
   const re = new RegExp("\\n" + label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\n([^\\n]+)");
@@ -39,12 +29,6 @@ function toCompactTime(s) {
   if (/^midday$/i.test(s)) return { h: 12, m: 0 };
   if (/^midnight$/i.test(s)) return { h: 0, m: 0 };
   const m = s.match(/^(\d{1,2})(\d{2})(AM|PM)$/i);
-  if (!m) return null;
-  return to24h(parseInt(m[1], 10), parseInt(m[2], 10), m[3]);
-}
-
-function toColonTime(s) {
-  const m = s.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
   if (!m) return null;
   return to24h(parseInt(m[1], 10), parseInt(m[2], 10), m[3]);
 }
@@ -144,13 +128,13 @@ async function load() {
   try {
     await loadOnce();
   } catch (err) {
-    // The first attempt on page load competes with the other PDF cards for
-    // the same large pdf.js worker file, so a slow/weak connection can time
-    // one of them out. One retry after a short pause covers that case
-    // without masking a genuinely broken source; if both fail we keep
-    // showing the last good bulletin (if any) rather than blanking it.
+    // This card's fetch runs alongside notam.js/heli.js on first page load,
+    // so a slow/weak connection can time one of them out. One retry after a
+    // short pause covers that case without masking a genuinely broken
+    // source; if both fail we keep showing the last good bulletin (if any)
+    // rather than blanking it.
     try {
-      await new Promise((r) => setTimeout(r, 1500));
+      await new Promise((r) => setTimeout(r, RETRY_PAUSE_MS));
       await loadOnce();
     } catch (err2) {
       console.error("Failed to load public weather bulletin", err2);
