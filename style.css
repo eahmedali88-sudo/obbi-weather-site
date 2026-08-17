@@ -645,6 +645,7 @@ td.val { direction: ltr; font-weight: 700; font-family: var(--font-mono); }
 /* Decoded table */
 .decoded-table td:first-child { text-align: start; color: var(--text-dim); width: 45%; }
 .decoded-table td:last-child { text-align: end; direction: ltr; font-weight: 700; font-family: var(--font-mono); }
+.decoded-table td.value-rtl { text-align: start; direction: rtl; font-weight: 400; font-family: var(--font); }
 
 /* TAF table */
 .taf-scroll { overflow-x: auto; }

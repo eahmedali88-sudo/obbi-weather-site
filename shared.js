@@ -23,3 +23,73 @@ export function stalenessClass(ageHours, staleAfterH, veryStaleAfterH) {
   if (ageHours > staleAfterH) return " stale";
   return "";
 }
+
+/*
+ * Best-effort Arabic translation for the free-text meteorological English
+ * pulled out of Bahrain Met's PDFs (bulletin.js today; heli.js's synopsis/
+ * warnings/outlook/remarks are the same style of text and could reuse this
+ * later). These bulletins draw from a small, fairly fixed vocabulary of
+ * stock phrases and compass directions, not free-form prose, so a
+ * dictionary covers real-world sentences well — but it's not a general
+ * translator: any word outside this list is left in English rather than
+ * guessed at, so a novel phrase degrades to partially-English instead of
+ * a wrong translation.
+ */
+const AR_COMPASS = {
+  N: "شمالية", NNE: "شمالية شمالية شرقية", NE: "شمالية شرقية", ENE: "شرقية شمالية شرقية",
+  E: "شرقية", ESE: "شرقية جنوبية شرقية", SE: "جنوبية شرقية", SSE: "جنوبية جنوبية شرقية",
+  S: "جنوبية", SSW: "جنوبية جنوبية غربية", SW: "جنوبية غربية", WSW: "غربية جنوبية غربية",
+  W: "غربية", WNW: "غربية شمالية غربية", NW: "شمالية غربية", NNW: "شمالية شمالية غربية",
+};
+
+const AR_PHRASES = [
+  [/\bat times during the day\b/gi, "أحياناً خلال النهار"],
+  [/\bat times during the night\b/gi, "أحياناً خلال الليل"],
+  [/\bduring the day\b/gi, "خلال النهار"],
+  [/\bduring the night\b/gi, "خلال الليل"],
+  [/\bat times\b/gi, "أحياناً"],
+  [/\bbut mainly\b/gi, "لكن غالباً"],
+  [/\bthundery activity\b/gi, "نشاط رعدي"],
+  [/\bpartly cloudy\b/gi, "غائم جزئياً"],
+  [/\bmostly cloudy\b/gi, "غائم غالباً"],
+];
+
+const AR_WORDS = {
+  hot: "حار", warm: "دافئ", cool: "معتدل البرودة", cold: "بارد",
+  humid: "رطب", dry: "جاف",
+  clear: "صافٍ", fine: "صافٍ", fair: "معتدل",
+  cloudy: "غائم", overcast: "ملبد بالغيوم",
+  dusty: "مغبر", sandy: "رملي", hazy: "ضبابي خفيف", misty: "ضبابي خفيف", foggy: "ضبابي",
+  rain: "مطر", rainy: "ممطر", showers: "زخات مطر", drizzle: "رذاذ",
+  thunderstorm: "عاصفة رعدية", thunderstorms: "عواصف رعدية", thundery: "رعدي",
+  windy: "عاصف", calm: "هادئ", gusty: "بهبات رياح", variable: "متغيرة",
+  partly: "جزئياً", mostly: "غالباً", occasionally: "أحياناً", occasional: "متقطع",
+  isolated: "متفرق", scattered: "متفرق", widespread: "منتشر واسع",
+  likely: "محتمل", possible: "ممكن", becoming: "يتحول إلى",
+  mainly: "غالباً", generally: "بشكل عام",
+  nil: "لا يوجد", none: "لا يوجد",
+  but: "لكن", with: "مع", or: "أو", to: "إلى",
+};
+
+export function translateWeatherText(text) {
+  if (!text) return text;
+  let out = text;
+
+  out = out.replace(/\b(NNE|ENE|ESE|SSE|SSW|WSW|WNW|NNW|NE|SE|SW|NW|N|E|S|W)'ly\b/g, (m, d) => AR_COMPASS[d] || m);
+  out = out.replace(/(\d+)\s*kt\b/gi, "$1 عقدة");
+  out = out.replace(/(\d+)\s*ft\b/gi, "$1 قدم");
+  out = out.replace(/,/g, "،");
+
+  for (const [re, ar] of AR_PHRASES) out = out.replace(re, ar);
+
+  const words = Object.keys(AR_WORDS).sort((a, b) => b.length - a.length);
+  const wordRe = new RegExp(`\\b(${words.join("|")})\\b`, "gi");
+  out = out.replace(wordRe, (m) => AR_WORDS[m.toLowerCase()] || m);
+
+  // "and" attaches directly to the following word in Arabic ("ورطب", not
+  // "و رطب") rather than standing alone with a space like the other
+  // connectors, so it needs its own no-trailing-space substitution.
+  out = out.replace(/\band\s+/gi, "و");
+
+  return out;
+}

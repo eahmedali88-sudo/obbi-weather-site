@@ -10,7 +10,7 @@
  */
 
 import { extractPdfText } from "./pdf-lite.js?v=2";
-import { withTimeout, stalenessClass } from "./shared.js?v=1";
+import { withTimeout, stalenessClass } from "./shared.js?v=3";
 
 const PDF_PROXY_URL = "/proxy/notam";
 const REFRESH_MS = 5 * 60 * 1000;

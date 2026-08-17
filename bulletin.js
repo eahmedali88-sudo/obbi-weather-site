@@ -8,7 +8,7 @@
  */
 
 import { extractPdfText } from "./pdf-lite.js?v=2";
-import { withTimeout } from "./shared.js?v=1";
+import { withTimeout, translateWeatherText } from "./shared.js?v=3";
 
 const PDF_PROXY_URL = "/proxy/bulletin";
 const REFRESH_MS = 5 * 60 * 1000;
@@ -106,13 +106,15 @@ function render() {
     return;
   }
 
+  const isAr = document.documentElement.lang === "ar";
+  const tr = (v) => (isAr ? translateWeatherText(v) : v);
   const rows = [
-    [t("bWeather"), lastBulletin.weather],
-    [t("bWind"), lastBulletin.wind],
-    [t("bWarning"), lastBulletin.warning],
-    [t("bSeaState"), lastBulletin.seaState],
+    [t("bWeather"), tr(lastBulletin.weather)],
+    [t("bWind"), tr(lastBulletin.wind)],
+    [t("bWarning"), tr(lastBulletin.warning)],
+    [t("bSeaState"), tr(lastBulletin.seaState)],
   ];
-  tbody.innerHTML = rows.map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join("");
+  tbody.innerHTML = rows.map(([k, v]) => `<tr><td>${k}</td><td${isAr ? ' class="value-rtl"' : ""}>${v}</td></tr>`).join("");
 
   const expired = Date.now() > new Date(lastBulletin.validUntil).getTime();
   card.className = "card notam-card" + (expired ? " sigmet-active" : "");
