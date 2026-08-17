@@ -614,7 +614,12 @@ function renderDaylight(airport) {
   if (dayLenH < 0) dayLenH += 24;
   const hh = Math.floor(dayLenH);
   const mm = Math.round((dayLenH - hh) * 60);
-  document.getElementById("daylen").textContent = lang === "ar" ? `${hh} ساعة ${mm} دقيقة` : `${hh}h ${mm}m`;
+  // Mixing Arabic unit letters/words directly with digits triggers Unicode
+  // bidi reordering that visually scrambles the string even inside an
+  // isolated LTR span. Match the HH:MM format already used by sunrise/noon/
+  // sunset right above it instead — pure numeric, no bidi ambiguity, and
+  // "Day length" as a label makes a duration read unambiguously either way.
+  document.getElementById("daylen").textContent = `${hh}:${pad2(mm)}`;
 
   updateSunDot();
 }
