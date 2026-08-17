@@ -614,7 +614,7 @@ function renderDaylight(airport) {
   if (dayLenH < 0) dayLenH += 24;
   const hh = Math.floor(dayLenH);
   const mm = Math.round((dayLenH - hh) * 60);
-  document.getElementById("daylen").textContent = lang === "ar" ? `${hh}س ${mm}د` : `${hh}h ${mm}m`;
+  document.getElementById("daylen").textContent = lang === "ar" ? `${hh} ساعة ${mm} دقيقة` : `${hh}h ${mm}m`;
 
   updateSunDot();
 }

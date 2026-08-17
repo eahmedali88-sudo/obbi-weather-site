@@ -576,7 +576,7 @@ a { color: var(--azure); }
 .compass-readout { display: flex; flex-direction: column; gap: 10px; min-width: 140px; }
 .compass-readout > div { display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
 .ro-label { color: var(--text-dim); font-size: 0.85rem; }
-.ro-value { font-weight: 700; direction: ltr; font-family: var(--font-mono); }
+.ro-value { font-weight: 700; direction: ltr; unicode-bidi: isolate; font-family: var(--font-mono); }
 
 /* Runway crosswind table */
 table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
