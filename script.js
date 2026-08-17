@@ -115,6 +115,7 @@ const STR = {
 
   statCategory: { ar: "حالة الطيران", en: "Flight Category" },
   statTemp: { ar: "درجة الحرارة", en: "Temperature" },
+  statFeelsLike: { ar: "الإحساس الحراري", en: "Feels Like" },
   statDew: { ar: "نقطة الندى", en: "Dew Point" },
   statHumidity: { ar: "الرطوبة النسبية", en: "Relative Humidity" },
   statWind: { ar: "الرياح", en: "Wind" },
@@ -428,6 +429,40 @@ function relativeHumidity(tempC, dewC) {
   if (tempC === undefined || tempC === null || dewC === undefined || dewC === null) return null;
   const es = (x) => 6.112 * Math.exp((17.625 * x) / (243.04 + x));
   return Math.round(100 * (es(dewC) / es(tempC)));
+}
+
+// "Feels like" — NOAA Rothfusz heat index above 26.7°C/40%RH (Bahrain's
+// normal range), NWS wind chill below 10°C with a real breeze, otherwise
+// just the actual temperature. Both standard formulas work in °F/mph, so
+// convert in and back out to keep the rest of the app in Celsius/knots.
+function computeFeelsLike(tempC, rh, wspdKt) {
+  if (tempC === undefined || tempC === null || rh === null || rh === undefined) return null;
+  const tempF = (tempC * 9) / 5 + 32;
+  const windMph = wspdKt ? wspdKt * 1.15078 : 0;
+
+  if (tempF >= 80 && rh >= 40) {
+    const T = tempF;
+    const R = rh;
+    const hi =
+      -42.379 +
+      2.04901523 * T +
+      10.14333127 * R -
+      0.22475541 * T * R -
+      0.00683783 * T * T -
+      0.05481717 * R * R +
+      0.00122874 * T * T * R +
+      0.00085282 * T * R * R -
+      0.00000199 * T * T * R * R;
+    return ((hi - 32) * 5) / 9;
+  }
+
+  if (tempF <= 50 && windMph >= 3) {
+    const V = Math.pow(windMph, 0.16);
+    const wc = 35.74 + 0.6215 * tempF - 35.75 * V + 0.4275 * tempF * V;
+    return ((wc - 32) * 5) / 9;
+  }
+
+  return tempC;
 }
 
 function windComponents(windDir, windSpd, runwayHdg) {
@@ -1012,6 +1047,7 @@ function aqiCategory(aqi) {
 function renderQuickStats(metar) {
   const cat = metar.fltCat || computeFlightCategory(parseVisib(metar.visib), parseCeilingFt(metar.clouds));
   const rh = relativeHumidity(metar.temp, metar.dewp);
+  const feelsLike = computeFeelsLike(metar.temp, rh, metar.wspd);
   const ageMin = metar.obsTime ? Math.round((Date.now() / 1000 - metar.obsTime) / 60) : null;
   const aqi = state ? state.aqi : null;
   const aqiCat = aqiCategory(aqi);
@@ -1019,6 +1055,7 @@ function renderQuickStats(metar) {
   const stats = [
     { icon: "i-status", label: t("statCategory"), value: cat, cls: `cat-${cat}`, badge: true },
     { icon: "i-thermo", label: t("statTemp"), value: fmtTemp(metar.temp), unitKey: "temp", unitLabel: tempUnit === "C" ? "°F" : "°C" },
+    { icon: "i-thermo", label: t("statFeelsLike"), value: fmtTemp(feelsLike), unitKey: "temp", unitLabel: tempUnit === "C" ? "°F" : "°C" },
     { icon: "i-droplet", label: t("statDew"), value: fmtTemp(metar.dewp), unitKey: "temp", unitLabel: tempUnit === "C" ? "°F" : "°C" },
     { icon: "i-droplets", label: t("statHumidity"), value: rh !== null ? `${rh}%` : "--" },
     { icon: "i-wind", label: t("statWind"), value: fmtWind(metar.wdir, metar.wspd, metar.wgst) },

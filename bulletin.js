@@ -51,29 +51,37 @@ function parseBulletin(text) {
   const warning = field("Warning", text);
   const seaState = field("Sea State", text);
 
-  const TIME_TOKEN = "(?:\\d{3,4}(?:AM|PM)|Midday|Midnight)";
-  const validM = text.match(
-    new RegExp(`valid from (${TIME_TOKEN}) on (\\d{1,2}) (\\d{1,2}) (\\d{4})\\s*\\n?\\s*until (${TIME_TOKEN}) tomorrow`, "i")
-  );
-  if (!weather || !wind || !warning || !seaState || !validM) return null;
+  if (!weather || !wind || !warning || !seaState) return null;
 
-  const [, fromTimeRaw, dayStr, monthStr, yearStr, untilTimeRaw] = validM;
-  const day = parseInt(dayStr, 10);
-  const month = parseInt(monthStr, 10);
-  const year = parseInt(yearStr, 10);
+  // The source has worded this two different ways on different days:
+  //   "valid from {T1} on {DD} {MM} {YYYY} ... until {T2} tomorrow"
+  //   "valid from {T1} until {T2} on {DD} {MM} {YYYY}"
+  // Match the times and the date independently (each search is order-agnostic
+  // and the "on DD MM YYYY" between "from" and "until" is optional) so both
+  // wordings — and any date position between them — parse the same way.
+  const TIME_TOKEN = "(?:\\d{3,4}(?:AM|PM)|Midday|Midnight)";
+  const timesM = text.match(
+    new RegExp(`valid from (${TIME_TOKEN})(?:\\s+on\\s+\\d{1,2}\\s+\\d{1,2}\\s+\\d{4})?\\s*\\n?\\s*until (${TIME_TOKEN})`, "i")
+  );
+  const dateM = text.match(/\bon\s+(\d{1,2})\s+(\d{1,2})\s+(\d{4})\b/i);
+  if (!timesM || !dateM) return null;
+
+  const [, fromTimeRaw, untilTimeRaw] = timesM;
+  const day = parseInt(dateM[1], 10);
+  const month = parseInt(dateM[2], 10);
+  const year = parseInt(dateM[3], 10);
   const fromTime = toCompactTime(fromTimeRaw);
   const untilTime = toCompactTime(untilTimeRaw);
   if (!fromTime || !untilTime) return null;
 
   const validFrom = isoBahrain(year, month, day, fromTime.h, fromTime.m);
-  const tomorrow = new Date(Date.UTC(year, month - 1, day + 1));
-  const validUntil = isoBahrain(
-    tomorrow.getUTCFullYear(),
-    tomorrow.getUTCMonth() + 1,
-    tomorrow.getUTCDate(),
-    untilTime.h,
-    untilTime.m
-  );
+  let validUntil = isoBahrain(year, month, day, untilTime.h, untilTime.m);
+  if (new Date(validUntil).getTime() <= new Date(validFrom).getTime()) {
+    // The until-time is actually on the next calendar day (e.g. "6PM ...
+    // until 6AM tomorrow", or "until Midnight" meaning the day's end).
+    const next = new Date(Date.UTC(year, month - 1, day + 1));
+    validUntil = isoBahrain(next.getUTCFullYear(), next.getUTCMonth() + 1, next.getUTCDate(), untilTime.h, untilTime.m);
+  }
 
   return { weather, wind, warning, seaState, validFrom, validUntil };
 }
