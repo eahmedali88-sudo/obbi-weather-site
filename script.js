@@ -111,6 +111,7 @@ const STR = {
   footerSource: { ar: "مصدر البيانات:", en: "Data source:" },
   footerSource2: { ar: "(NOAA / FAA Aviation Weather Center) — يتم التحديث تلقائياً كل 5 دقائق.", en: "(NOAA / FAA Aviation Weather Center) — auto-refreshes every 5 minutes." },
   lastUpdatedNone: { ar: "آخر تحديث: --", en: "Last updated: --" },
+  companyWebsite: { ar: "الموقع الرسمي", en: "Official Website" },
   lastUpdated: { ar: "آخر تحديث:", en: "Last updated:" },
 
   statCategory: { ar: "حالة الطيران", en: "Flight Category" },
