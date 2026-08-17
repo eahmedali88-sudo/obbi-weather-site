@@ -726,11 +726,18 @@ td.val { direction: ltr; font-weight: 700; font-family: var(--font-mono); }
   margin-top: 6px;
 }
 .site-footer a { color: var(--azure); }
+.site-footer-links {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
 .site-credit {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin-top: 10px;
   padding: 6px 14px;
   border-radius: var(--radius-pill);
   font-size: 0.78rem;
