@@ -9,6 +9,7 @@ const AIRPORTS = {
     cityAr: "المحرق، البحرين",
     lat: 26.2708, lon: 50.6336, tzOffset: 3,
     fir: "OBBB",
+    iata: "BAH",
     runways: [
       { id: "12L/30R", hdgs: [119, 299], lengthM: 3955, widthM: 60 },
       { id: "12R/30L", hdgs: [119, 299], lengthM: 2530, widthM: 45 },
@@ -22,19 +23,44 @@ const AIRPORTS = {
       { role: "tower", freq: "118.50" },
     ],
   },
-  OTHH: { name: "Hamad International Airport", nameAr: "مطار حمد الدولي", city: "Doha, Qatar", cityAr: "الدوحة، قطر", lat: 25.2611, lon: 51.5651, tzOffset: 3,
+  OTHH: { name: "Hamad International Airport", nameAr: "مطار حمد الدولي", city: "Doha, Qatar", cityAr: "الدوحة، قطر", lat: 25.2611, lon: 51.5651, tzOffset: 3, iata: "DOH",
     runways: [ { id: "16L/34R", hdgs: [160, 340], lengthM: 4570, widthM: 60 }, { id: "16R/34L", hdgs: [160, 340], lengthM: 4250, widthM: 60 } ] },
-  OKBK: { name: "Kuwait International Airport", nameAr: "مطار الكويت الدولي", city: "Kuwait City, Kuwait", cityAr: "مدينة الكويت، الكويت", lat: 29.2267, lon: 47.9689, tzOffset: 3,
+  OKBK: { name: "Kuwait International Airport", nameAr: "مطار الكويت الدولي", city: "Kuwait City, Kuwait", cityAr: "مدينة الكويت، الكويت", lat: 29.2267, lon: 47.9689, tzOffset: 3, iata: "KWI",
     runways: [ { id: "15L/33R", hdgs: [151, 331], lengthM: 4000, widthM: 60 }, { id: "15R/33L", hdgs: [151, 331], lengthM: 3400, widthM: 45 } ] },
-  OERK: { name: "King Khalid International Airport", nameAr: "مطار الملك خالد الدولي", city: "Riyadh, Saudi Arabia", cityAr: "الرياض، السعودية", lat: 24.9576, lon: 46.6988, tzOffset: 3,
+  OERK: { name: "King Khalid International Airport", nameAr: "مطار الملك خالد الدولي", city: "Riyadh, Saudi Arabia", cityAr: "الرياض، السعودية", lat: 24.9576, lon: 46.6988, tzOffset: 3, iata: "RUH",
     runways: [ { id: "15L/33R", hdgs: [150, 330], lengthM: 4205, widthM: 60 }, { id: "15R/33L", hdgs: [150, 330], lengthM: 4205, widthM: 60 } ] },
-  OEJN: { name: "King Abdulaziz International Airport", nameAr: "مطار الملك عبدالعزيز الدولي", city: "Jeddah, Saudi Arabia", cityAr: "جدة، السعودية", lat: 21.6796, lon: 39.1565, tzOffset: 3,
+  OEJN: { name: "King Abdulaziz International Airport", nameAr: "مطار الملك عبدالعزيز الدولي", city: "Jeddah, Saudi Arabia", cityAr: "جدة، السعودية", lat: 21.6796, lon: 39.1565, tzOffset: 3, iata: "JED",
     runways: [ { id: "16L/34R", hdgs: [160, 340], lengthM: 4000, widthM: 60 }, { id: "16C/34C", hdgs: [160, 340], lengthM: 3800, widthM: 60 }, { id: "16R/34L", hdgs: [160, 340], lengthM: 3800, widthM: 60 } ] },
-  OMDB: { name: "Dubai International Airport", nameAr: "مطار دبي الدولي", city: "Dubai, UAE", cityAr: "دبي، الإمارات", lat: 25.2528, lon: 55.3644, tzOffset: 4,
+  OMDB: { name: "Dubai International Airport", nameAr: "مطار دبي الدولي", city: "Dubai, UAE", cityAr: "دبي، الإمارات", lat: 25.2528, lon: 55.3644, tzOffset: 4, iata: "DXB",
     runways: [ { id: "12L/30R", hdgs: [120, 300], lengthM: 4447, widthM: 60 }, { id: "12R/30L", hdgs: [120, 300], lengthM: 4000, widthM: 60 } ] },
-  OMAA: { name: "Abu Dhabi International Airport", nameAr: "مطار أبوظبي الدولي", city: "Abu Dhabi, UAE", cityAr: "أبوظبي، الإمارات", lat: 24.4330, lon: 54.6511, tzOffset: 4,
+  OMAA: { name: "Abu Dhabi International Airport", nameAr: "مطار أبوظبي الدولي", city: "Abu Dhabi, UAE", cityAr: "أبوظبي، الإمارات", lat: 24.4330, lon: 54.6511, tzOffset: 4, iata: "AUH",
     runways: [ { id: "13L/31R", hdgs: [130, 310], lengthM: 4100, widthM: 60 }, { id: "13R/31L", hdgs: [130, 310], lengthM: 4100, widthM: 60 } ] },
 };
+
+// Supplementary IATA -> ICAO lookup for major world airports outside our
+// local AIRPORTS database (those get live METAR/TAF via the global API but
+// none of the local runway/comms/navaids detail). Deliberately a curated,
+// high-confidence list rather than an attempt at global coverage — a wrong
+// mapping here would silently send someone to the wrong airport's weather,
+// so an unrecognized 3-letter code is left untranslated (and just fails the
+// "no METAR data" check normally) rather than guessed at.
+const EXTRA_IATA_TO_ICAO = {
+  CAI: "HECA", AMM: "OJAI", BEY: "OLBA", MCT: "OOMS", BGW: "ORBI", IKA: "OIIE",
+  LHR: "EGLL", CDG: "LFPG", FRA: "EDDF", AMS: "EHAM", IST: "LTFM", MAD: "LEMD", FCO: "LIRF",
+  DEL: "VIDP", BOM: "VABB", SIN: "WSSS", BKK: "VTBS", HKG: "VHHH", NRT: "RJAA", HND: "RJTT", PEK: "ZBAA", KUL: "WMKK",
+  JFK: "KJFK", LAX: "KLAX", ORD: "KORD", YYZ: "CYYZ",
+};
+
+const IATA_TO_ICAO = { ...EXTRA_IATA_TO_ICAO };
+for (const [icao, a] of Object.entries(AIRPORTS)) {
+  if (a.iata) IATA_TO_ICAO[a.iata] = icao;
+}
+
+function resolveAirportCode(raw) {
+  const code = raw.trim().toUpperCase();
+  if (code.length === 3 && IATA_TO_ICAO[code]) return IATA_TO_ICAO[code];
+  return code;
+}
 
 const DEFAULT_ICAO = "OBBI";
 const REFRESH_MS = 5 * 60 * 1000;
@@ -66,7 +92,7 @@ const MANUAL_FALLBACK = {
 const STR = {
   brandTitle: { ar: "مساعد الطيارين للطقس الجوي", en: "Pilot Weather Briefing Assistant" },
   brandSub: { ar: "إحاطة طقس جوية للطيارين — منطقة معلومات طيران البحرين", en: "Aviation weather briefing for pilots — Bahrain FIR" },
-  icaoLabel: { ar: "رمز المطار ICAO", en: "Airport ICAO code" },
+  icaoLabel: { ar: "رمز المطار ICAO أو IATA", en: "Airport ICAO or IATA code" },
   update: { ar: "تحديث", en: "Update" },
   localTime: { ar: "التوقيت المحلي", en: "Local time" },
   utcTime: { ar: "التوقيت العالمي UTC", en: "UTC time" },
@@ -1338,7 +1364,8 @@ function scheduleRefresh(icao) {
 
 document.getElementById("icao-form").addEventListener("submit", (e) => {
   e.preventDefault();
-  const icao = document.getElementById("icao-input").value.trim().toUpperCase() || DEFAULT_ICAO;
+  const raw = document.getElementById("icao-input").value.trim();
+  const icao = raw ? resolveAirportCode(raw) : DEFAULT_ICAO;
   document.getElementById("icao-input").value = icao;
   loadWeather(icao);
   scheduleRefresh(icao);
