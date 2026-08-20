@@ -73,7 +73,7 @@ const AR_WORDS = {
   windy: "عاصف", calm: "هادئ", gusty: "بهبات رياح", variable: "متغيرة",
   wind: "رياح", winds: "رياح",
   reaching: "تصل", inshore: "قرب الشاطئ", offshore: "قبالة الشاطئ",
-  today: "اليوم", tonight: "الليلة", tomorrow: "غداً", morning: "الصباح", afternoon: "الظهيرة", evening: "المساء", night: "الليل",
+  today: "اليوم", tonight: "الليلة", overnight: "طوال الليل", tomorrow: "غداً", morning: "الصباح", afternoon: "الظهيرة", evening: "المساء", night: "الليل",
   partly: "جزئياً", mostly: "غالباً", occasionally: "أحياناً", occasional: "متقطع",
   isolated: "متفرق", scattered: "متفرق", widespread: "منتشر واسع", places: "أماكن متفرقة",
   likely: "محتمل", possible: "ممكن", becoming: "يتحول إلى",

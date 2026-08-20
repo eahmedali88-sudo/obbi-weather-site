@@ -8,7 +8,7 @@
  */
 
 import { extractPdfText } from "./pdf-lite.js?v=2";
-import { withTimeout, translateWeatherText } from "./shared.js?v=4";
+import { withTimeout, translateWeatherText } from "./shared.js?v=5";
 
 const PDF_PROXY_URL = "/proxy/bulletin";
 const REFRESH_MS = 5 * 60 * 1000;

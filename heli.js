@@ -6,7 +6,7 @@
  */
 
 import { extractPdfText } from "./pdf-lite.js?v=2";
-import { withTimeout, stalenessClass } from "./shared.js?v=4";
+import { withTimeout, stalenessClass } from "./shared.js?v=5";
 
 const PDF_PROXY_URL = "/proxy/heli";
 const REFRESH_MS = 5 * 60 * 1000;
