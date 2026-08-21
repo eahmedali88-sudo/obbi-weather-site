@@ -772,20 +772,25 @@ function renderRunwayMark(airport, activeRunwayIdx, wdir) {
   const y0 = cy - halfLen + labelInset;
   const y1 = cy + halfLen - labelInset;
 
+  // A runway's number is painted at the threshold you *start* from when
+  // flying that heading — e.g. "09" sits at the WEST end of a 09/27
+  // runway, since you depart the west end heading 090°. So parts[0]
+  // (heading hdgs[0]) belongs at the position that ends up at bearing
+  // hdgs[1] after rotation — which is y1, not y0 — and vice versa.
   const label0 = svgEl("text", {
     x: cx, y: y0,
-    class: "runway-num-label" + (activeEndIdx === 0 ? " active" : ""),
+    class: "runway-num-label" + (activeEndIdx === 1 ? " active" : ""),
     transform: `rotate(${hdg} ${cx} ${cy})`,
   });
-  label0.textContent = parts[0];
+  label0.textContent = parts[1];
   g.appendChild(label0);
 
   const label1 = svgEl("text", {
     x: cx, y: y1,
-    class: "runway-num-label" + (activeEndIdx === 1 ? " active" : ""),
+    class: "runway-num-label" + (activeEndIdx === 0 ? " active" : ""),
     transform: `rotate(${hdg} ${cx} ${cy}) rotate(180 ${cx} ${y1})`,
   });
-  label1.textContent = parts[1];
+  label1.textContent = parts[0];
   g.appendChild(label1);
 }
 
