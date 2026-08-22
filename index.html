@@ -12,6 +12,39 @@
 </head>
 <body>
 
+<div id="moved-notice" style="position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(10,12,16,0.82);backdrop-filter:blur(3px);font-family:'Segoe UI',Tahoma,Arial,sans-serif;">
+  <div style="position:relative;max-width:460px;width:100%;background:#191d22;border:1px solid #2f353d;border-radius:14px;padding:32px 28px 28px;box-shadow:0 20px 60px rgba(0,0,0,0.5);text-align:center;color:#e7ebee;">
+    <button id="moved-notice-close" aria-label="Close" style="position:absolute;top:10px;inset-inline-end:12px;background:none;border:none;color:#8b96a3;font-size:22px;line-height:1;cursor:pointer;padding:4px;">&times;</button>
+    <div style="font-size:34px;line-height:1;margin-bottom:14px;">✈️</div>
+
+    <div dir="rtl" lang="ar" style="margin-bottom:18px;">
+      <div style="font-size:1.15rem;font-weight:700;margin-bottom:8px;">لقد انتقلنا إلى موقعنا الجديد!</div>
+      <div style="font-size:0.9rem;color:#b7bec6;line-height:1.6;">هذا الموقع لن يُحدَّث بعد الآن. تفضّل بزيارة موقعنا الجديد لأحدث بيانات الطقس والميزات.</div>
+    </div>
+
+    <div dir="ltr" lang="en" style="margin-bottom:22px;padding-top:16px;border-top:1px solid #2f353d;">
+      <div style="font-size:1.05rem;font-weight:700;margin-bottom:8px;">We've moved to our new site!</div>
+      <div style="font-size:0.88rem;color:#b7bec6;line-height:1.6;">This site is no longer updated. Please visit our new site for the latest weather data and features.</div>
+    </div>
+
+    <a href="https://www.i-shaheen-weather.com/" style="display:inline-block;background:#f5a623;color:#1a1200;font-weight:700;font-size:0.95rem;text-decoration:none;padding:12px 28px;border-radius:8px;direction:ltr;">
+      i-shaheen-weather.com ↗
+    </a>
+  </div>
+</div>
+<script>
+(function(){
+  var notice = document.getElementById('moved-notice');
+  if (sessionStorage.getItem('obbi_moved_notice_dismissed')) {
+    notice.style.display = 'none';
+  }
+  document.getElementById('moved-notice-close').addEventListener('click', function(){
+    notice.style.display = 'none';
+    sessionStorage.setItem('obbi_moved_notice_dismissed', '1');
+  });
+})();
+</script>
+
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
 <defs>
 <symbol id="i-wind" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
